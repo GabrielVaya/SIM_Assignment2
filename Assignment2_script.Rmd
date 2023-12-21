@@ -1,0 +1,222 @@
+---
+title: "Untitled"
+author: "Gabriel Vayá"
+date: "2023-12-13"
+output: 
+  pdf_document: 
+    toc: true
+    toc_depth: 3
+    number_sections: true
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Clear plots
+if(!is.null(dev.list())) dev.off()
+
+# Clean workspace
+rm(list=ls())
+
+library(car)
+library(MASS)
+library(missMDA)
+library(visdat)
+library(FactoMineR)
+library(chemometrics)
+library(corrplot)
+library(naniar)
+```
+
+```{r}
+setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
+df <- read.csv2("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+
+df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
+df$TotalCharges <- as.numeric(df$TotalCharges)
+df[sapply(df, is.character)] <- lapply(df[sapply(df, is.character)], as.factor)
+df$SeniorCitizen <- as.factor(df$SeniorCitizen)
+df$customerID <- as.character(df$customerID)
+levels(df$SeniorCitizen) <- c("No","Yes")
+```
+
+
+#DataPreparation
+
+#Deduplication
+```{r}
+dup <- which(duplicated(df)) #No duplicate rows
+```
+
+#Missing Values
+```{r}
+df[is.na(df$TotalCharges),]
+
+mcar_test(df) #p-value is 0 -> not random
+df$tenure[is.na(df$TotalCharges)]
+#Impute with 0
+df$TotalCharges[is.na(df$TotalCharges)] <- 0
+sum(is.na(df))
+```
+
+#MultivariateOutliers
+```{r}
+num <- which(sapply(df,is.numeric))
+
+res.mout <- Moutlier(df[,num],quantile=0.99,plot=F)
+length(which(res.mout$md > res.mout$cutoff));
+m.out <- which(res.mout$md > res.mout$cutoff)
+plot(res.mout$md, res.mout$rd)
+
+#df <- df[-m.out,] 
+```
+Maybe because there is continuity in the distribution we don't take them out (see plot)
+
+#EDA
+
+#gender
+```{r}
+sum(is.na(df$gender))
+barplot(table(df$gender),col='lightblue')
+```
+
+#SeniorCitizen
+```{r}
+sum(is.na(df$SeniorCitizen))
+barplot(table(df$SeniorCitizen),col='lightblue')
+```
+
+#Partner
+```{r}
+sum(is.na(df$Partner))
+barplot(table(df$Partner),col='lightblue')
+```
+
+#Dependents
+```{r}
+sum(is.na(df$Dependents))
+barplot(table(df$Dependents),col='lightblue')
+```
+
+#tenure
+```{r}
+sum(is.na(df$tenure))
+hist(df$tenure,freq=F,15)
+mm <- mean(df$tenure,na.rm=T);ss <- sd(df$tenure,na.rm=T);mm;ss
+curve(dnorm(x,mm,ss),col="red",add=T)
+shapiro.test(df$tenure)
+Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df)))
+exoutl <- as.integer(Boxplot(df$tenure,range=6,id=list(n=Inf,labels=rownames(df))))
+```
+
+#PhoneService
+```{r}
+sum(is.na(df$PhoneService))
+barplot(table(df$PhoneService),col='lightblue')
+```
+
+#MultipleLines
+```{r}
+sum(is.na(df$MultipleLines))
+barplot(table(df$MultipleLines),col='lightblue')
+```
+
+#InternetService
+```{r}
+sum(is.na(df$InternetService))
+barplot(table(df$InternetService),col='lightblue')
+```
+
+#OnlineSecurity
+```{r}
+sum(is.na(df$OnlineSecurity))
+barplot(table(df$OnlineSecurity),col='lightblue')
+```
+
+#OnlineBackup
+```{r}
+sum(is.na(df$OnlineBackup))
+barplot(table(df$OnlineBackup),col='lightblue')
+```
+
+#DeviceProtection
+```{r}
+sum(is.na(df$DeviceProtection))
+barplot(table(df$DeviceProtection),col='lightblue')
+```
+
+#TechSupport
+```{r}
+sum(is.na(df$TechSupport))
+barplot(table(df$TechSupport),col='lightblue')
+```
+
+#StreamingMovies
+```{r}
+sum(is.na(df$StreamingMovies))
+barplot(table(df$StreamingMovies),col='lightblue')
+```
+
+#Contract
+```{r}
+sum(is.na(df$Contract))
+barplot(table(df$Contract),col='lightblue')
+```
+
+#PaperlessBilling
+```{r}
+sum(is.na(df$PaperlessBilling))
+barplot(table(df$PaperlessBilling),col='lightblue')
+```
+
+#PaymentMethod
+```{r}
+sum(is.na(df$PaymentMethod))
+barplot(table(df$PaymentMethod),col='lightblue')
+```
+
+#MonthlyCharges
+```{r}
+sum(is.na(df$MonthlyCharges))
+hist(df$MonthlyCharges,freq=F,15)
+mm <- mean(df$MonthlyCharges,na.rm=T);ss <- sd(df$MonthlyCharges,na.rm=T);mm;ss
+curve(dnorm(x,mm,ss),col="red",add=T)
+shapiro.test(df$MonthlyCharges)
+Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df)))
+exoutl <- as.integer(Boxplot(df$MonthlyCharges,range=6,id=list(n=Inf,labels=rownames(df))))
+```
+
+#TotalCharges
+```{r}
+sum(is.na(df$TotalCharges)) #11 NA's
+hist(df$TotalCharges,freq=F,15)
+mm <- mean(df$TotalCharges,na.rm=T);ss <- sd(df$TotalCharges,na.rm=T);mm;ss
+curve(dnorm(x,mm,ss),col="red",add=T)
+shapiro.test(df$TotalCharges)
+Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df)))
+exoutl <- as.integer(Boxplot(df$TotalCharges,range=6,id=list(n=Inf,labels=rownames(df))))
+```
+
+#Target Variable: Churn
+```{r}
+sum(is.na(df$Churn))
+barplot(table(df$Churn),col='lightblue')
+```
+
+#Profiling of target variable 
+```{r}
+catdes(df,21)
+```
+
+
+#
+```{r}
+
+```
+
