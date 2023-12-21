@@ -215,7 +215,7 @@ catdes(df,21)
 ```
 
 
-#
+#Model with numerical variables
 ```{r}
 
 ```
