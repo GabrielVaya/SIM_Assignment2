@@ -244,8 +244,9 @@ df_res %>%
 num <- which(sapply(df,is.numeric))
 
 res.mout <- Moutlier(df[,num],quantile=0.99,plot=F)
-length(which(res.mout$md > res.mout$cutoff));
-m.out <- which(res.mout$md > res.mout$cutoff)
+length(which(res.mout$md > res.mout$cutoff))
+mout <- which(res.mout$md > res.mout$cutoff)
+summary(df[mout, num]) #Summary of outliers
 plot(res.mout$md, res.mout$rd)
 
 #df <- df[-m.out,] #remove multivariate outliers
