@@ -32,11 +32,16 @@ library(FactoMineR)
 library(chemometrics)
 library(corrplot)
 library(naniar)
+library(nortest)
+library(visdat)
+library(tidyverse)
+library(lsr)
 ```
 
 ```{r}
-setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
-df <- read.csv2("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+#setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
+df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
 df$TotalCharges <- as.numeric(df$TotalCharges)
@@ -56,16 +61,185 @@ dup <- which(duplicated(df)) #No duplicate rows
 
 #Missing Values
 ```{r}
-df[is.na(df$TotalCharges),]
+vis_miss(df)
+df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
 
 mcar_test(df) #p-value is 0 -> not random
 df$tenure[is.na(df$TotalCharges)]
-#Impute with 0
-df$TotalCharges[is.na(df$TotalCharges)] <- 0
-sum(is.na(df))
+df$TotalCharges[is.na(df$TotalCharges)] <- 0 #impute with 0
 ```
 
-#MultivariateOutliers
+#EDA (+ Univariate Outliers)
+
+#gender
+```{r}
+na.gender <- sum(is.na(df$gender)) #No NAs
+barplot(table(df$gender),col='lightblue') #Balanced
+```
+
+#SeniorCitizen
+```{r}
+na.seniorcitizen <- sum(is.na(df$SeniorCitizen)) #No NAs
+barplot(table(df$SeniorCitizen),col='lightblue') #Unbalanced
+```
+
+#Partner
+```{r}
+na.partner <- sum(is.na(df$Partner)) #No NAs
+barplot(table(df$Partner),col='lightblue') #Balanced
+```
+
+#Dependents
+```{r}
+na.dependents <- sum(is.na(df$Dependents)) #No NAs
+barplot(table(df$Dependents),col='lightblue') #Unbalanced
+```
+
+#tenure
+```{r}
+na.tenure <- sum(is.na(df$tenure)) #No NAs
+hist(df$tenure,freq=F,15) #Young customers overrepresented
+mm <- mean(df$tenure,na.rm=T);ss <- sd(df$tenure,na.rm=T);
+curve(dnorm(x,mm,ss),col="red",add=T)
+#shapiro.test(df$tenure) #Error: too many samples for shapiro test
+ad.test(df$tenure) #Anderson-Darling test: Not normally distributed
+Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
+```
+
+#PhoneService
+```{r}
+na.phoneservice <- sum(is.na(df$PhoneService)) #No NAs
+barplot(table(df$PhoneService),col='lightblue') #Unbalanced
+```
+
+#MultipleLines
+```{r}
+na.multiplelines <- sum(is.na(df$MultipleLines)) #No NAs
+barplot(table(df$MultipleLines),col='lightblue') #Unbalanced in "No phone service"
+```
+
+#InternetService
+```{r}
+na.internetservice <- sum(is.na(df$InternetService)) #No NAs
+barplot(table(df$InternetService),col='lightblue') #Unbalanced
+```
+
+#OnlineSecurity
+```{r}
+no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
+barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
+```
+
+#OnlineBackup
+```{r}
+na.onlinebackup <- sum(is.na(df$OnlineBackup)) #No NAs
+barplot(table(df$OnlineBackup),col='lightblue') #Unbalanced
+```
+
+#DeviceProtection
+```{r}
+na.deviceprotection <- sum(is.na(df$DeviceProtection)) #No NAs
+barplot(table(df$DeviceProtection),col='lightblue') #Unbalanced
+```
+
+#TechSupport
+```{r}
+na.techsupport <- sum(is.na(df$TechSupport)) #No NAs
+barplot(table(df$TechSupport),col='lightblue') #Unbalanced in "No"
+```
+
+#StreamingMovies
+```{r}
+na.streamingmovies <- sum(is.na(df$StreamingMovies)) #No NAs
+barplot(table(df$StreamingMovies),col='lightblue') #Unbalanced in "No internet service"
+```
+
+#Contract
+```{r}
+na.contract <- sum(is.na(df$Contract)) #No NAs
+barplot(table(df$Contract),col='lightblue') #Unbalanced in "Month-to-month"
+```
+
+#PaperlessBilling
+```{r}
+na.paperlessbilling <- sum(is.na(df$PaperlessBilling)) #No NAs
+barplot(table(df$PaperlessBilling),col='lightblue') #Relatively balanced
+```
+
+#PaymentMethod
+```{r}
+na.paymentmethod <- sum(is.na(df$PaymentMethod)) #No NAs
+barplot(table(df$PaymentMethod),col='lightblue') #Unbalanced in "Credit card (automatic)"
+```
+
+#MonthlyCharges
+```{r}
+na.monthlycharges <- sum(is.na(df$MonthlyCharges)) #No NAs
+hist(df$MonthlyCharges,freq=F,15)
+mm <- mean(df$MonthlyCharges,na.rm=T)
+ss <- sd(df$MonthlyCharges,na.rm=T)
+curve(dnorm(x,mm,ss),col="red",add=T)
+#shapiro.test(df$MonthlyCharges) #Error: too many samples for shapiro test
+ad.test(df$MonthlyCharges) #Anderson-Darling test: Not normally distributed
+Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
+```
+
+#TotalCharges
+```{r}
+na.totalcharges <- sum(is.na(df$TotalCharges)) #11 NAs imputed earlier
+hist(df$TotalCharges,freq=F,15)
+mm <- mean(df$TotalCharges,na.rm=T)
+ss <- sd(df$TotalCharges,na.rm=T)
+curve(dnorm(x,mm,ss),col="red",add=T)
+#shapiro.test(df$TotalCharges) #Error: too many samples for shapiro test
+ad.test(df$TotalCharges) #Anderson-Darling test: Not normally distributed
+Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
+```
+
+#Target Variable: Churn
+```{r}
+na.churn <- sum(is.na(df$Churn)) #No NAs
+barplot(table(df$Churn),col='lightblue') #Unbalanced
+```
+
+#Correlations and Associations
+```{r}
+# Correlations
+vis_dat(df[,num], sort_type = FALSE)
+vis_cor(df[,num])
+
+# Mixed Associations (using Chisquared pvalue and CramersV)
+cat <- which(sapply(df, function(x) is.factor(x) || is.character(x)))
+
+# function to get chi square p value and Cramers V
+f = function(x,y) {
+    tbl = df %>% select(x,y) %>% table()
+    chisq_pval = round(chisq.test(tbl)$p.value, 4)
+    cramV = round(cramersV(tbl), 4) 
+    data.frame(x, y, chisq_pval, cramV) }
+
+# create unique combinations of column names
+# sorting will help getting a better plot (upper triangular)
+df_comb = data.frame(t(combn(sort(names(df)), 2)), stringsAsFactors = F)
+
+# apply function to each variable combination
+df_res = map2_df(df_comb$X1, df_comb$X2, f)
+
+# plot results
+df_res %>%
+  ggplot(aes(x,y,fill=chisq_pval))+
+  geom_tile()+
+  geom_text(aes(x,y,label=cramV), size=2)+
+  scale_fill_gradient(low="red", high="yellow")+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+# Function to find mixed associations found at:
+# https://stackoverflow.com/questions/52554336/plot-the-equivalent-of-correlation-matrix-for-factors-categorical-data-and-mi
+# By AntoniosK on StackOverflow
+```
+
+#Multivariate Outliers
 ```{r}
 num <- which(sapply(df,is.numeric))
 
@@ -74,140 +248,9 @@ length(which(res.mout$md > res.mout$cutoff));
 m.out <- which(res.mout$md > res.mout$cutoff)
 plot(res.mout$md, res.mout$rd)
 
-#df <- df[-m.out,] 
+#df <- df[-m.out,] #remove multivariate outliers
 ```
 Maybe because there is continuity in the distribution we don't take them out (see plot)
-
-#EDA
-
-#gender
-```{r}
-sum(is.na(df$gender))
-barplot(table(df$gender),col='lightblue')
-```
-
-#SeniorCitizen
-```{r}
-sum(is.na(df$SeniorCitizen))
-barplot(table(df$SeniorCitizen),col='lightblue')
-```
-
-#Partner
-```{r}
-sum(is.na(df$Partner))
-barplot(table(df$Partner),col='lightblue')
-```
-
-#Dependents
-```{r}
-sum(is.na(df$Dependents))
-barplot(table(df$Dependents),col='lightblue')
-```
-
-#tenure
-```{r}
-sum(is.na(df$tenure))
-hist(df$tenure,freq=F,15)
-mm <- mean(df$tenure,na.rm=T);ss <- sd(df$tenure,na.rm=T);mm;ss
-curve(dnorm(x,mm,ss),col="red",add=T)
-shapiro.test(df$tenure)
-Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df)))
-exoutl <- as.integer(Boxplot(df$tenure,range=6,id=list(n=Inf,labels=rownames(df))))
-```
-
-#PhoneService
-```{r}
-sum(is.na(df$PhoneService))
-barplot(table(df$PhoneService),col='lightblue')
-```
-
-#MultipleLines
-```{r}
-sum(is.na(df$MultipleLines))
-barplot(table(df$MultipleLines),col='lightblue')
-```
-
-#InternetService
-```{r}
-sum(is.na(df$InternetService))
-barplot(table(df$InternetService),col='lightblue')
-```
-
-#OnlineSecurity
-```{r}
-sum(is.na(df$OnlineSecurity))
-barplot(table(df$OnlineSecurity),col='lightblue')
-```
-
-#OnlineBackup
-```{r}
-sum(is.na(df$OnlineBackup))
-barplot(table(df$OnlineBackup),col='lightblue')
-```
-
-#DeviceProtection
-```{r}
-sum(is.na(df$DeviceProtection))
-barplot(table(df$DeviceProtection),col='lightblue')
-```
-
-#TechSupport
-```{r}
-sum(is.na(df$TechSupport))
-barplot(table(df$TechSupport),col='lightblue')
-```
-
-#StreamingMovies
-```{r}
-sum(is.na(df$StreamingMovies))
-barplot(table(df$StreamingMovies),col='lightblue')
-```
-
-#Contract
-```{r}
-sum(is.na(df$Contract))
-barplot(table(df$Contract),col='lightblue')
-```
-
-#PaperlessBilling
-```{r}
-sum(is.na(df$PaperlessBilling))
-barplot(table(df$PaperlessBilling),col='lightblue')
-```
-
-#PaymentMethod
-```{r}
-sum(is.na(df$PaymentMethod))
-barplot(table(df$PaymentMethod),col='lightblue')
-```
-
-#MonthlyCharges
-```{r}
-sum(is.na(df$MonthlyCharges))
-hist(df$MonthlyCharges,freq=F,15)
-mm <- mean(df$MonthlyCharges,na.rm=T);ss <- sd(df$MonthlyCharges,na.rm=T);mm;ss
-curve(dnorm(x,mm,ss),col="red",add=T)
-shapiro.test(df$MonthlyCharges)
-Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df)))
-exoutl <- as.integer(Boxplot(df$MonthlyCharges,range=6,id=list(n=Inf,labels=rownames(df))))
-```
-
-#TotalCharges
-```{r}
-sum(is.na(df$TotalCharges)) #11 NA's
-hist(df$TotalCharges,freq=F,15)
-mm <- mean(df$TotalCharges,na.rm=T);ss <- sd(df$TotalCharges,na.rm=T);mm;ss
-curve(dnorm(x,mm,ss),col="red",add=T)
-shapiro.test(df$TotalCharges)
-Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df)))
-exoutl <- as.integer(Boxplot(df$TotalCharges,range=6,id=list(n=Inf,labels=rownames(df))))
-```
-
-#Target Variable: Churn
-```{r}
-sum(is.na(df$Churn))
-barplot(table(df$Churn),col='lightblue')
-```
 
 #Profiling of target variable 
 ```{r}
