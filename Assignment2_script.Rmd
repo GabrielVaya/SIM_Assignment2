@@ -65,7 +65,7 @@ vis_miss(df)
 df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
 
 mcar_test(df) #p-value is 0 -> not random
-df$tenure[is.na(df$TotalCharges)]
+df$tenure[is.na(df$TotalCharges)] #TotalCharges are NA when tenure is 0
 df$TotalCharges[is.na(df$TotalCharges)] <- 0 #impute with 0
 ```
 
@@ -254,6 +254,7 @@ Maybe because there is continuity in the distribution we don't take them out (se
 
 #Profiling of target variable 
 ```{r}
+summary(df$Churn)
 catdes(df,21)
 ```
 
