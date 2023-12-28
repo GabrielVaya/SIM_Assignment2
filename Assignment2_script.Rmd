@@ -69,6 +69,19 @@ df$tenure[is.na(df$TotalCharges)] #TotalCharges are NA when tenure is 0
 df$TotalCharges[is.na(df$TotalCharges)] <- 0 #impute with 0
 ```
 
+#Deduplication (again)
+```{r}
+dup <- which(duplicated(df)) #No duplicate rows
+```
+
+#Looking for errors
+```{r}
+df.aux <- df
+df.aux$TheoreticalTotalCharges <- df.aux$tenure*df.aux$MonthlyCharges
+df.aux[df.aux$TheoreticalTotalCharges > df.aux$TotalCharges,]
+```
+
+
 #EDA (+ Univariate Outliers)
 
 #gender
