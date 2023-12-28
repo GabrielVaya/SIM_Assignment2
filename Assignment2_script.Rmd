@@ -116,6 +116,7 @@ mm <- mean(df$tenure,na.rm=T);ss <- sd(df$tenure,na.rm=T);
 curve(dnorm(x,mm,ss),col="red",add=T)
 #shapiro.test(df$tenure) #Error: too many samples for shapiro test
 ad.test(df$tenure) #Anderson-Darling test: Not normally distributed
+Boxplot(df$tenure,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univariate outliers
 Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
 ```
 
@@ -194,7 +195,8 @@ ss <- sd(df$MonthlyCharges,na.rm=T)
 curve(dnorm(x,mm,ss),col="red",add=T)
 #shapiro.test(df$MonthlyCharges) #Error: too many samples for shapiro test
 ad.test(df$MonthlyCharges) #Anderson-Darling test: Not normally distributed
-Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
+Boxplot(df$MonthlyCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univariate outliers
+Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
 ```
 
 #TotalCharges
@@ -206,7 +208,8 @@ ss <- sd(df$TotalCharges,na.rm=T)
 curve(dnorm(x,mm,ss),col="red",add=T)
 #shapiro.test(df$TotalCharges) #Error: too many samples for shapiro test
 ad.test(df$TotalCharges) #Anderson-Darling test: Not normally distributed
-Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
+Boxplot(df$TotalCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univariate outliers
+Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
 ```
 
 #Target Variable: Churn
