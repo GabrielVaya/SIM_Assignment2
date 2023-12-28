@@ -38,6 +38,7 @@ library(tidyverse)
 library(lsr)
 ```
 
+First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
 #setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
@@ -55,11 +56,13 @@ levels(df$SeniorCitizen) <- c("No","Yes")
 #DataPreparation
 
 #Deduplication
+Now we check for duplicates in the dataset, and we see all rows are distinct. 
 ```{r}
 dup <- which(duplicated(df)) #No duplicate rows
 ```
 
 #Missing Values
+For the missing data, we can...
 ```{r}
 vis_miss(df)
 df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
@@ -280,6 +283,7 @@ catdes(df,21)
 #Modelling
 
 #Model with numerical variables
+
 ```{r}
 attach(df)
 nm1 <- glm(Churn ~ tenure + MonthlyCharges + TotalCharges, family="binomial", data = df)
@@ -292,5 +296,20 @@ step(nm1,k= log(nrow(df)))
 nm2 <- glm(Churn ~ tenure + MonthlyCharges, family="binomial", data = df)
 summary(nm2)
 anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence that the variance explained is the same. We don't at 99% confidence. 
+```
+
+#Transformations of numerical variables
+```{r}
+
+```
+
+#Adding main categorical effects
+```{r}
+
+```
+
+#Interactions
+```{r}
+
 ```
 
