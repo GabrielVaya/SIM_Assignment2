@@ -39,9 +39,9 @@ library(lsr)
 ```
 
 ```{r}
-setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
-#setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
-df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
+df <- read.csv2("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
 df$TotalCharges <- as.numeric(df$TotalCharges)
@@ -256,12 +256,25 @@ Maybe because there is continuity in the distribution we don't take them out (se
 #Profiling of target variable 
 ```{r}
 summary(df$Churn)
+ptt<-prop.table(table(df$Churn));ptt
 catdes(df,21)
 ```
 
 
+#Modelling
+
 #Model with numerical variables
 ```{r}
+attach(df)
+nm1 <- glm(Churn ~ tenure + MonthlyCharges + TotalCharges, family="binomial", data = df)
+summary(nm1)
+vif.nm1 <- vif(nm1);vif.nm1
+step(nm1,k= log(nrow(df))) 
+```
 
+```{r}
+nm2 <- glm(Churn ~ tenure + MonthlyCharges, family="binomial", data = df)
+summary(nm2)
+anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence that the variance explained is the same. We don't at 99% confidence. 
 ```
 
