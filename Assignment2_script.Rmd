@@ -219,6 +219,8 @@ Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe u
 ```{r}
 na.churn <- sum(is.na(df$Churn)) #No NAs
 barplot(table(df$Churn),col='lightblue') #Unbalanced
+res.cat <- catdes(df,21)
+res.cat$category
 ```
 
 #Correlations and Associations
@@ -281,9 +283,9 @@ catdes(df,21)
 
 
 #Modelling
-
+Now we enter into the modelling stage of the analysis. We first want to construct a robust numerical model, in order to add transformations in the numerical variables. Afterwards we will add the main categorical variables into this best numerical model, and finally we will look at interactions between variables to make the final model.
 #Model with numerical variables
-
+We only have 3 numerical variables, so, in the first place, we construct a model with all 3 numerical variables: tenure, MonthlyCharges and TotalCharges. We are suspicious of multicolinearity regarding TotalCharges, since the number calculated by multiplying the tenure months by MonthlyCharges gives a similar result than the TotalCharges value (with small a deviation probably coming from opening fees or discounts in the different contracts). (...)
 ```{r}
 attach(df)
 nm1 <- glm(Churn ~ tenure + MonthlyCharges + TotalCharges, family="binomial", data = df)
@@ -296,34 +298,35 @@ step(nm1,k= log(nrow(df)))
 nm2 <- glm(Churn ~ tenure + MonthlyCharges, family="binomial", data = df)
 summary(nm2)
 anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence that the variance explained is the same. We don't at 99% confidence. 
-
-
 ```
 
 
 #Transformations of numerical variables
 Firstly, we examine marginalModelPlots to gain insights into which variables effectively fit the model. Subsequently, we observed the necessity for a transformation in the tenure variable.
 A reduction of one unit in tenure is associated with a log-odds increase of -0.054850 for Churn. Consequently, implementing a Square Root Transformation becomes imperative.
-
 ```{r}
 nm3 <- glm(Churn ~ tenure+ I(tenure^2) + MonthlyCharges, family="binomial", data = df)
 summary(nm3)
-
-library(car)
 marginalModelPlots(nm3)
 
 nm4 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges, family="binomial", data = df)
 summary(nm4)
 marginalModelPlots(nm4)
-
-
-
 ```
 
 #Adding main categorical effects
+Now we attempt to add our factor variables to the model. First we are building an inicial model with the main numerical variables and all the categorical ones, which will obviously result in a too complex model to be analysed or properly interpreted. After that, we are conducting an Anova Chisq test to assess the significance of each categorical variable. 
 ```{r}
-
+cm1 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + gender + SeniorCitizen + Partner + Dependents + PhoneService + MultipleLines + InternetService + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + StreamingTV + StreamingMovies + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(cm1)
+Anova(cm1,test="LR")
 ```
+This Anova tests suggests, at 95% confidence, to take out of the modeling the following variables: gender, Partner, Dependets, PhoneService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV and StreamingMovies. Now we construct a model only with the significant variables.
+```{r}
+cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(cm2)
+```
+
 
 #Interactions
 ```{r}
