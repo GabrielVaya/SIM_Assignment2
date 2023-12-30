@@ -296,10 +296,27 @@ step(nm1,k= log(nrow(df)))
 nm2 <- glm(Churn ~ tenure + MonthlyCharges, family="binomial", data = df)
 summary(nm2)
 anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence that the variance explained is the same. We don't at 99% confidence. 
+
+
 ```
 
+
 #Transformations of numerical variables
+Firstly, we examine marginalModelPlots to gain insights into which variables effectively fit the model. Subsequently, we observed the necessity for a transformation in the tenure variable.
+A reduction of one unit in tenure is associated with a log-odds increase of -0.054850 for Churn. Consequently, implementing a Square Root Transformation becomes imperative.
+
 ```{r}
+nm3 <- glm(Churn ~ tenure+ I(tenure^2) + MonthlyCharges, family="binomial", data = df)
+summary(nm3)
+
+library(car)
+marginalModelPlots(nm3)
+
+nm4 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges, family="binomial", data = df)
+summary(nm4)
+marginalModelPlots(nm4)
+
+
 
 ```
 
