@@ -40,8 +40,9 @@ library(lsr)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
+setwd("D:/MDS/ADSDB/SIM_Assignment2")
 df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
@@ -339,5 +340,46 @@ InternetService:Contract
 InternetService:PaymentMethod
 ```{r}
 Anova(glm(Churn ~ (poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod) * (poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod), family="binomial", data = df))
+```
+We will be adding interactions one by one to our model, and we will see if they have significance over the last model, and, if they do, we keep them in the model and move on. Note that to do that we will be using Fisher tests, with the null hypothesis being that the variance explained by both models are the same. 
+First we look into the interaction between Contract and the transformed tenure. We can see that the role it performs on the model is to ... . Then, we perform an Fisher test to see if the variances explained by the two models are the same or not. 
+```{r}
+gm1 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(gm1)
+anova(cm2,gm1,test="Chisq") #p-value 3.435e-06
+```
+We can see that the p-value in this case is 3.435e-06, so we reject the null hypothesis and we decide to keep the interaction forward. 
+Now let's look at the interactions regarding MonthlyCharges, starting by its interaction with MultipleLines.
+```{r}
+gm2 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*MultipleLines + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(gm2)
+anova(gm1,gm2,test="Chisq") #p-value 0.01332
+```
+In this case, the p-value is 0.01332, which would make us reject the hypothesis at 99% confidence, but accept it at 95%. We decide to take it out of the model.
+```{r}
+gm3 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(gm3)
+anova(gm1,gm3,test="Chisq") #p-value 0.007456 
+```
+This time, the p-value is 0.007456, so we will keep the interaction in the model.
+```{r}
+gm4 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*(InternetService + Contract) + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(gm4)
+anova(gm3,gm4,test="Chisq") #p-value 0.6995 
+```
+Now the p-value is 0.6995, so we accept the null hypothesis and not keep this interaction.
+```{r}
+gm5 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen*PaymentMethod + MultipleLines + InternetService + PaperlessBilling , family="binomial", data = df)
+summary(gm5)
+anova(gm3,gm5,test="Chisq") #p-value 0.03849  
+```
+In this final case, we could reject the null hypothesis at 95% confidence, but we decide to take this interaction  out of the model.
+
+#Train-test validation & final interpretation
+```{r}
+fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(fm)
+Anova(fm)
+
 ```
 
