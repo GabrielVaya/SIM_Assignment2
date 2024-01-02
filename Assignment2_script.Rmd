@@ -40,9 +40,9 @@ library(lsr)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
-setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
-df <- read.csv2("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+#setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
+df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
 df$TotalCharges <- as.numeric(df$TotalCharges)
@@ -225,6 +225,8 @@ res.cat$category
 
 #Correlations and Associations
 ```{r}
+num <- which(sapply(df,is.numeric))
+
 # Correlations
 vis_dat(df[,num], sort_type = FALSE)
 vis_cor(df[,num])
@@ -262,8 +264,6 @@ df_res %>%
 
 #Multivariate Outliers
 ```{r}
-num <- which(sapply(df,is.numeric))
-
 res.mout <- Moutlier(df[,num],quantile=0.99,plot=F)
 length(which(res.mout$md > res.mout$cutoff))
 mout <- which(res.mout$md > res.mout$cutoff)
@@ -329,7 +329,15 @@ summary(cm2)
 
 
 #Interactions
+Significant interactions (5% level):
+poly(tenure, 2):Contract
+MonthlyCharges:MultipleLines
+MonthlyCharges:InternetService
+MonthlyCharges:Contract
+SeniorCitizen:PaymentMethod
+InternetService:Contract
+InternetService:PaymentMethod
 ```{r}
-
+Anova(glm(Churn ~ (poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod) * (poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod), family="binomial", data = df))
 ```
 
