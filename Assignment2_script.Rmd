@@ -41,10 +41,10 @@ library(effects)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
 #setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
-#setwd("D:/MDS/ADSDB/SIM_Assignment2")
+setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
 df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
@@ -394,6 +394,10 @@ df <- df[-llcoo,]
 rownames(df) <- NULL
 ```
 
+```{r}
+cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+```
+
 
 #Interactions
 Significant interactions (5% level):
@@ -413,36 +417,37 @@ First we look into the interaction between Contract and the transformed tenure. 
 gm1 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(gm1)
 #DOES WORK
-anova(cm2,gm1,test="Chisq") #p-value 3.435e-06
+anova(cm2,gm1,test="Chisq") #p-value 2.982e-06
 ```
-We can see that the p-value in this case is 3.435e-06, so we reject the null hypothesis and we decide to keep the interaction forward. 
+We can see that the p-value in this case is 2.982e-06, so we reject the null hypothesis and we decide to keep the interaction forward. 
 Now let's look at the interactions regarding MonthlyCharges, starting by its interaction with MultipleLines.
 ```{r}
 gm2 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*MultipleLines + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(gm2)
-anova(gm1,gm2,test="Chisq") #p-value 0.01332
+anova(gm1,gm2,test="Chisq") #p-value 0.01424 
 ```
-In this case, the p-value is 0.01332, which would make us reject the hypothesis at 99% confidence, but accept it at 95%. We decide to take it out of the model.
+In this case, the p-value is 0.01424, which would make us reject the hypothesis at 99% confidence, but accept it at 95%. We decide to take it out of the model.
 ```{r}
 gm3 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(gm3)
-anova(gm1,gm3,test="Chisq") #p-value 0.007456 
+anova(gm1,gm3,test="Chisq") #p-value 0.005535  
 ```
-This time, the p-value is 0.007456, so we will keep the interaction in the model.
+This time, the p-value is 0.005535, so we will keep the interaction in the model.
 ```{r}
 gm4 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*(InternetService + Contract) + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(gm4)
-anova(gm3,gm4,test="Chisq") #p-value 0.6995 
+anova(gm3,gm4,test="Chisq") #p-value 0.8 
 ```
-Now the p-value is 0.6995, so we accept the null hypothesis and not keep this interaction.
+Now the p-value is 0.8, so we accept the null hypothesis and not keep this interaction.
 ```{r}
 gm5 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen*PaymentMethod + MultipleLines + InternetService + PaperlessBilling , family="binomial", data = df)
 summary(gm5)
-anova(gm3,gm5,test="Chisq") #p-value 0.03849  
+anova(gm3,gm5,test="Chisq") #p-value 0.035   
 ```
 In this final case, we could reject the null hypothesis at 95% confidence, but we decide to take this interaction  out of the model.
 
 #Train-test validation & final interpretation
+This is the final model as it is. First of all we are going to make a residual analysis and, if there is any, take out the influential data to get the model performing at its best, before intepreting it and testing it. 
 ```{r}
 fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(fm)
@@ -466,7 +471,7 @@ influenceIndexPlot(fm, id.n=10, vars=c('hat'))
 Boxplot(hatvalues(fm), ylim=c(0,0.04))
 abline(h=4*length(coef(fm))/nrow(df))
 llhat <- which(hatvalues(fm)>4*length(coef(fm))/nrow(df))
-df <- df[llhat,]
+df <- df[-llhat,]
 rownames(df) <- NULL
 
 # Cooks distance
@@ -481,8 +486,16 @@ df <- df[-llcoo,]
 rownames(df) <- NULL
 ```
 
+#Interpretation
+Now that we have our influential data removed, let's move on to the interpretation of the model. Let's keep in mind that the base class for this model is Churn:No. To start with the numerical variables, MonthlyCharges parameter is negative, which means that, as the amount charged by the month increases, it decreases the probability in the logodds scale that a customer will leave by 1.514e-03 units, which is not very much so we could consider it neutral. In the case of tenure, we see that as a client stays more months in the company, the probability of it to leave is 6.892e+0 units less in the logodds scale. This, a priori, speaks well of the company, since it is clear that clients tend to leave less as they experiment its services over time. However, the transformation of tenure^2 has the opposite effect, meaning that with clients that have been a lot of months in the company are more probable to leave. 
+Now for the categorical variables. Looking at contract we can see that, over the base class which is month to month, customers with contracts of one year are a little less probable to leave, and even less for contracts of two years, that are 3.798e+00 units less probable to leave in the logodds scale. In the case of InternetService, No internet service and Fiber are less probable to leave than DSL. Then, we see that SeniorCitizens are more probable to leave, which maybe can be explained because they are more probable to die. Futhermore, those clients with No phone service or multiple lines are more likely to leave than those with only one phone line. The paperless bill also plays a part, since those using a paperless (online) bill are 3.838e-01 units more probable to leave in the logodds scale than those with paper bill. That can be maybe attributed to the fact that many paper bill users don't even see the bill, since paper mail is given less attention these days. In terms of payment method, MailedCheck makes it less likely for the clients to leave than Bank transfer (the base class), which has to do with what was mentioned earlier in the Paperless bill. The same phenomena is observed with CreditCard payment although it is not as pronounced. The opposite is observed with Wlectronic check, since users of this payment method are more likely to leave the company. 
+Finally, let's look at the interactions. To start with, we have the interaction between the transformed tenure and Contracts. We can see that, regarding one year contracts, the probability of a customer to leave increases 2.276e+01 units in the logodds scale as tenure months increase compared to those customers with month to month contracts; and the probability of a customer to leave decreases 2.297e+01 units in the logodds scale as tenure^2 months increase. Similar with two-year contracts but not as pronounced. This means that, customers with one year or two year contracts are more likely to leave than those with month to month contracts over the months. However, the opposite happens with tenure^2, which means that if you look over large periods of time moving faster, customers with closed contracts are less likely to leave than those with month to month contracts. To end with, let's look at the interaction between MonthlyCharges and InternetService. We can see that those customers with Fiber optic are more likely to leave as their monthly charges go up than those with DSL, and the opposite with those with no internet service. However, the coeficients are relatively small, so no further conclusions must be dragged from this. 
+```{r}
+fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
+summary(fm)
+```
 
-Test-train
+#Test-train
 ```{r}
 set.seed(1234)
 llwork <- sample(1:nrow(df),round(0.8*nrow(df),dig=0))
