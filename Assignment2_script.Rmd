@@ -412,6 +412,7 @@ First we look into the interaction between Contract and the transformed tenure. 
 ```{r}
 gm1 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(gm1)
+#DOES WORK
 anova(cm2,gm1,test="Chisq") #p-value 3.435e-06
 ```
 We can see that the p-value in this case is 3.435e-06, so we reject the null hypothesis and we decide to keep the interaction forward. 
