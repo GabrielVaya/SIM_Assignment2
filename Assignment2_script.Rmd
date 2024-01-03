@@ -36,14 +36,16 @@ library(nortest)
 library(visdat)
 library(tidyverse)
 library(lsr)
+library(effects)
 ```
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
 #setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
-setwd("D:/MDS/ADSDB/SIM_Assignment2")
-df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
+#setwd("D:/MDS/ADSDB/SIM_Assignment2")
+
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
 df$TotalCharges <- as.numeric(df$TotalCharges)
@@ -382,4 +384,62 @@ summary(fm)
 Anova(fm)
 
 ```
+
+Assesment
+```{r}
+Boxplot(hatvalues(fm))
+abline(h=4*length(coef(fm))/nrow(df))
+
+#observations with cooks distance very large are dangerous
+Boxplot(cooks.distance(fm), id.method=list(label=rownames(df))) #2 obs far away that should be removed from the database because are influent data outliers according to cooks distance (3972 and 5948)
+
+influencePlot(fm)  #according to hat values 2372 and 3668 are too large
+
+llcoo <- c(3972, 5948, 2372, 3668)
+df <- df[-llcoo,]
+
+```
+
+
+Test-train
+```{r}
+set.seed(1234)
+llwork <- sample(1:nrow(df),round(0.8*nrow(df),dig=0))
+dfwork <- df[llwork,]
+dftest <- df[-llwork,]
+
+fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = dfwork)
+
+m15 <- step(fm, k=log(nrow(dfwork)))
+Anova(m15, test="LR") #make an assement for residual deviance and how it affects degrees of freedom
+
+summary(m15) #goodness of fitt asses deviance (model) vs df(model)
+
+library(DescTools)
+PseudoR2(m15, "all")#0.28 -> good model
+
+predprob <- predict(m15, type="response")
+summary(predprob)
+```
+
+
+split sample
+```{r}
+
+predprob <- predict(m15, type="response")
+summary(predprob)
+summary(fitted(m15))
+hoslem.test(dfwork$pres, fitted(m15) ) 
+
+```
+
+# Classical: confusion tables
+```{r}
+predprob <- predict(m15, type="response")
+predi.est <- ifelse(predprob<0.5, 0, 1)
+table(predi.est, dfwork$pres)
+
+#Accuracy 
+```
+
 
