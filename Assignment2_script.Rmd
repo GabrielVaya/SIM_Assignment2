@@ -41,11 +41,12 @@ library(effects)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
-setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
+#setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
 #setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
+df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
 df$TotalCharges <- as.numeric(df$TotalCharges)
@@ -287,6 +288,7 @@ catdes(df,21)
 
 #Modelling
 Now we enter into the modelling stage of the analysis. We first want to construct a robust numerical model, in order to add transformations in the numerical variables. Afterwards we will add the main categorical variables into this best numerical model, and finally we will look at interactions between variables to make the final model.
+
 #Model with numerical variables
 We only have 3 numerical variables, so, in the first place, we construct a model with all 3 numerical variables: tenure, MonthlyCharges and TotalCharges. We are suspicious of multicolinearity regarding TotalCharges, since the number calculated by multiplying the tenure months by MonthlyCharges gives a similar result than the TotalCharges value (with small a deviation probably coming from opening fees or discounts in the different contracts). (...)
 ```{r}
@@ -300,7 +302,7 @@ step(nm1,k= log(nrow(df)))
 ```{r}
 nm2 <- glm(Churn ~ tenure + MonthlyCharges, family="binomial", data = df)
 summary(nm2)
-anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence that the variance explained is the same. We don't at 99% confidence. 
+anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence that the variance explained is the same. We don't at 99% confidence.
 ```
 
 
@@ -317,6 +319,36 @@ summary(nm4)
 marginalModelPlots(nm4)
 ```
 
+# NM4: Residual analysis and Influential Data
+(INTERPRETATION OF RESIDUAL PLOTS)
+
+When looking at the hat values, using the influenceIndexPlot, we see that there are many no points that stand out relative to the rest. We have a similar case when looking at the influencePlot. We can confirm that there are no outstanding hat values by drawing a boxplot and a typical cutoff line at 4*p/n. This plot shows us there are no points with hat values above this cutoff and therefore no further action needs to be taken.
+
+In a similar way, when we plot the influenceIndexPlot for Cooks' Distance, we find a few (approximately 5) points that stand out above the rest. To further investigate we draw a boxplot of Cooks' Distance and find that indeed there are four points that are relatively further out than others. We can draw a clear cutoff line at 0.003 to separate these points. When we further inspect these points by comparing their summary statistics against overall summaries of Tenure and Monthly Charges we find that tenure is significantly higher for these outlier observations while the average MonthlyCharges are almost half of the overall average. We decide to remove these points.
+```{r}
+# Residuals
+residualPlots(nm4, layout=c(1, 3))
+
+influencePlot(nm4)
+
+# Hat values
+influenceIndexPlot(nm4, id.n=10, vars=c('hat'))
+Boxplot(hatvalues(nm4), ylim=c(0,0.0025))
+abline(h=4*length(coef(nm4))/nrow(df))
+
+# Cooks distance
+influenceIndexPlot(nm4, id.n=10, vars=c('Cook'))
+Boxplot(cooks.distance(nm4))
+abline(h=0.003)
+llcoo <- which(cooks.distance(nm4)> 0.003);
+summary(df[,c('tenure', 'MonthlyCharges')])
+summary(df[llcoo,c('tenure', 'MonthlyCharges')])
+
+df <- df[-llcoo,]
+rownames(df) <- NULL
+```
+
+
 #Adding main categorical effects
 Now we attempt to add our factor variables to the model. First we are building an inicial model with the main numerical variables and all the categorical ones, which will obviously result in a too complex model to be analysed or properly interpreted. After that, we are conducting an Anova Chisq test to assess the significance of each categorical variable. 
 ```{r}
@@ -328,6 +360,38 @@ This Anova tests suggests, at 95% confidence, to take out of the modeling the fo
 ```{r}
 cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(cm2)
+```
+
+# CM2: Residual Analysis and Influential Data
+(RESIDUAL ANALYSIS)
+
+From the general influencePlot we can see that there are a couple possible outliers that need further investivation such as observations 3821 and 489, which seem to have abnormally high hat values. These same points stand out in the influenceIndexPlot. When we now draw a boxplot of the hat values and draw a cutoff line at the typical cutoff 4*p/n, we see that point 489 is the only one above this cutoff, with point 2819 just below. Thus, we remove observation 489.
+
+When we further investigate Cooks' Distance using influenceIndexPlot we see more observations stand out with observations 3972 and 5948 being fat above the rest. Now when we draw the boxplot, we again see these two points stand out with several other points. Here there is no clear cutoff as the observations splinter into groups, where one group has a large distance to the rest, and then the two observations mentioned even further than this. Thus, to not lose too much valuable information we decide to remove only the two largest outliers, thus moving the cutoff to 0.0033. When comparing the Cooks outliers summaries to the all the data it is difficult to see where they are different. They seem to generally have lower charges (monthly and total), with longer tenure but nothing noteworthy that would suggest why they seem to be so influential from the summary statistics alone.
+```{r}
+# Residuals
+residualPlots(cm2, layout=c(1, 3))
+
+influencePlot(cm2)
+
+# Hat values
+influenceIndexPlot(cm2, id.n=10, vars=c('hat'))
+Boxplot(hatvalues(cm2), ylim=c(0,0.01))
+abline(h=4*length(coef(cm2))/nrow(df))
+# hatvalues(cm2)[487] --> referring to observation 489
+df <- df[-489,]
+rownames(df) <- NULL
+
+# Cooks distance
+influenceIndexPlot(cm2, id.n=10, vars=c('Cook'))
+Boxplot(cooks.distance(cm2))
+abline(h=0.0033)
+llcoo <- which(cooks.distance(cm2)> 0.0033);
+#summary(df)          --> uncomment to compare
+#summary(df[llcoo,])  --> uncomment to compare
+
+df <- df[-llcoo,]
+rownames(df) <- NULL
 ```
 
 
@@ -382,22 +446,38 @@ In this final case, we could reject the null hypothesis at 95% confidence, but w
 fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(fm)
 Anova(fm)
-
 ```
 
-Assesment
+#Residual Analysis and Influential Data
+(RESIDUAL ANALYSIS)
+
+From the influencePlot of the final model we see that there may be a lot of observations with abnormally high hat values that must be investigated, as well as some observations with extreme Cooks' Distances. When checking the influenceIndexPlot we can see many observations that stand out above the rest, for example observation 2367 and 3663. When the boxplot is plotted with the cutoff at 4*p/n we find that 56 observations are above this cutoff. We decide to remove all of these observations.
+
+When analyzing the Cooks' Distance using influenceIndexPlot we see only two observations that stand out far above the rest, 3969 and 5942. When we continue by drawing the boxplot we get the same result, and thus set the cutoff at 0.01 to remove these observations. Once again the analysis of the summary statistics is not very revealing, the outliers seem to have much lower charges (monthly and total), however the comparison between other factors is not adequate as there are only two outliers.
 ```{r}
-Boxplot(hatvalues(fm))
+# Residuals
+residualPlots(fm, layout=c(1, 3))
+
+influencePlot(fm)
+
+# Hat values
+influenceIndexPlot(fm, id.n=10, vars=c('hat'))
+Boxplot(hatvalues(fm), ylim=c(0,0.04))
 abline(h=4*length(coef(fm))/nrow(df))
+llhat <- which(hatvalues(fm)>4*length(coef(fm))/nrow(df))
+df <- df[llhat,]
+rownames(df) <- NULL
 
-#observations with cooks distance very large are dangerous
-Boxplot(cooks.distance(fm), id.method=list(label=rownames(df))) #2 obs far away that should be removed from the database because are influent data outliers according to cooks distance (3972 and 5948)
+# Cooks distance
+influenceIndexPlot(fm, id.n=10, vars=c('Cook'))
+Boxplot(cooks.distance(fm))
+abline(h=0.01)
+llcoo <- which(cooks.distance(fm)> 0.01);
+summary(df[,])
+summary(df[llcoo,])
 
-influencePlot(fm)  #according to hat values 2372 and 3668 are too large
-
-llcoo <- c(3972, 5948, 2372, 3668)
 df <- df[-llcoo,]
-
+rownames(df) <- NULL
 ```
 
 
