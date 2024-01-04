@@ -524,27 +524,47 @@ summary(fm)
 ```
 
 #Test-train
+Initially, the dataset was partitioned into two subsets, namely the training set, comprising 80% of the data, and the test set, consisting of 20%. Subsequently, the model was trained using the training data to predict churn. The next step involved predicting dropout in the test dataset, and the results were then printed.
+
+To evaluate the model, precision was calculated by examining the consistency of results between the two sets. Finally, an additional assessment was conducted using the ROC curve. The Area Under the Curve (AUC) on the Receiver Operating Characteristic (ROC) curve serves as a metric for gauging the classifier's efficacy in distinguishing between positive and negative classes. An AUC value of 0.87 suggests relatively robust performance, categorizing it as excellent.
 ```{r}
+# Install and load the pROC package
+install.packages("pROC")
+library(pROC)
+
 set.seed(1234)
-llwork <- sample(1:nrow(df),round(0.8*nrow(df),dig=0))
-train_data <- df[llwork,]
-test_data <- df[-llwork,]
+llwork <- sample(1:nrow(df), round(0.8 * nrow(df), dig = 0))
+train_data <- df[llwork, ]
+test_data <- df[-llwork, ]
 
-#train model to predict churn
-fm<- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = train_data)
+# Train model to predict churn
+fm <- glm(Churn ~ poly(tenure, 2) * Contract + MonthlyCharges * InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family = "binomial", data = train_data)
 
-#predict churn using model
-fm_pred<- predict(fm, test_data, type= "response")
+# Predict churn using the model
+fm_pred <- predict(fm, test_data, type = "response")
 
-#print first few results
-head(fm_pred,10)
+# Print first few results
+head(fm_pred, 10)
 
-#check model performance
-test_data$predict.Churn <- ifelse(fm_pred<0.5, "No", "Yes")
+# Check model performance
+test_data$predict.Churn <- ifelse(fm_pred < 0.5, "No", "Yes")
 
-head(test_data$Churn,5)
+head(test_data$Churn, 5)
 head(test_data$predict.Churn, 5)
 
-accuracy <- mean(test_data$predict.Churn==test_data$Churn)
-print(accuracy)
+# Accuracy
+accuracy <- mean(test_data$predict.Churn == test_data$Churn)
+cat("Accuracy:", accuracy, "\n")
+
+# Create ROC curve
+roc_curve <- roc(test_data$Churn, fm_pred)
+
+# Plot ROC curve
+plot(roc_curve, main = "ROC Curve", col = "blue", lwd = 2)
+
+# Add AUC to the plot
+auc_value <- auc(roc_curve)
+legend("bottomright", legend = paste("AUC =", round(auc_value, 2)), col = "blue", lwd = 2)
+
 ```
+
