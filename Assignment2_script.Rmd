@@ -273,6 +273,7 @@ df_res %>%
 ```
 
 #Multivariate Outliers
+Using the Moutlier function at a 1% significance level we find that there are 62 outliers. Checking the summary of the outliers we see that they have abnormally high tenure, and very high TotalCharges. However, when we plot the robust distance versus the mahalanobis distance we see that there is a lot of continuity in the points. We believe that all the points so closely together, springing out in three continuous spikes means that these outliers are expected, as many other observations come close to this cutoff. Thus, we decide to keep all of the multivariate outliers. This is becuase of this strong continuity in the graph and the relatedness of all the points close to the cutoff. Losing these points mean we lose valuable information as there is a clear pattern, namely the higher the tenure the higher the overall total charges, even if they are very high numbers that are shown to be outliers by the Moutlier function. We want this relationship to be captured in the model.
 ```{r}
 res.mout <- Moutlier(df[,num],quantile=0.99,plot=F)
 length(which(res.mout$md > res.mout$cutoff))
@@ -282,7 +283,7 @@ plot(res.mout$md, res.mout$rd)
 
 #df <- df[-m.out,] #remove multivariate outliers
 ```
-Maybe because there is continuity in the distribution we don't take them out (see plot)
+
 
 #Profiling of target variable
 We can see from the summary of the target variable Churn that it is highly unbalanced. 73% of all instances do not Churn. This may be a problem when building a model that we must keep in mind.
