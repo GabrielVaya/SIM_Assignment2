@@ -78,6 +78,7 @@ dup <- which(duplicated(df)) #No duplicate rows
 ```
 
 #Looking for errors
+In the errors, we want to see, first of all we look for huge discrepancies between the total charges, and the product between MonthlyCharges and tenure months. We see some, but small, probably due to discounts or opening fees. Next, we want to see if the number of clients without phone service is the same throughout the variables. It is, 682. Finally, we do the same with internet service, and we see that it is the same, 1526. 
 ```{r}
 df.aux <- df
 df.aux$TheoreticalTotalCharges <- df.aux$tenure*df.aux$MonthlyCharges
