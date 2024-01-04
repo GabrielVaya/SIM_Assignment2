@@ -43,10 +43,11 @@ First thing will be to load the data into R, and redeclaring the variables to pr
 ```{r}
 #setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
-#setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
-setwd("D:/MDS/ADSDB/SIM_Assignment2")
+setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
+#setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
 df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+df <- WA_Fn_UseC_Telco_Customer_Churn
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
 df$TotalCharges <- as.numeric(df$TotalCharges)
@@ -499,41 +500,24 @@ summary(fm)
 ```{r}
 set.seed(1234)
 llwork <- sample(1:nrow(df),round(0.8*nrow(df),dig=0))
-dfwork <- df[llwork,]
-dftest <- df[-llwork,]
+train_data <- df[llwork,]
+test_data <- df[-llwork,]
 
-fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = dfwork)
+#train model to predict churn
+fm<- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = train_data)
 
-m15 <- step(fm, k=log(nrow(dfwork)))
-Anova(m15, test="LR") #make an assement for residual deviance and how it affects degrees of freedom
+#predict churn using model
+fm_pred<- predict(fm, test_data, type= "response")
 
-summary(m15) #goodness of fitt asses deviance (model) vs df(model)
+#print first few results
+head(fm_pred,10)
 
-library(DescTools)
-PseudoR2(m15, "all")#0.28 -> good model
+#check model performance
+test_data$predict.Churn <- ifelse(fm_pred<0.5, "No", "Yes")
 
-predprob <- predict(m15, type="response")
-summary(predprob)
+head(test_data$Churn,5)
+head(test_data$predict.Churn, 5)
+
+accuracy <- mean(test_data$predict.Churn==test_data$Churn)
+print(accuracy)
 ```
-
-
-#Split sample
-```{r}
-
-predprob <- predict(m15, type="response")
-summary(predprob)
-summary(fitted(m15))
-hoslem.test(dfwork$pres, fitted(m15) ) 
-
-```
-
-# Classical: confusion tables
-```{r}
-predprob <- predict(m15, type="response")
-predi.est <- ifelse(predprob<0.5, 0, 1)
-table(predi.est, dfwork$pres)
-
-#Accuracy 
-```
-
-
