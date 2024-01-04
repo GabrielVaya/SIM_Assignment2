@@ -91,6 +91,9 @@ table(df.aux$MultipleLines)
 table(df.aux$OnlineSecurity)
 table(df.aux$OnlineBackup)
 table(df.aux$InternetService)
+table(df.aux$TechSupport)
+table(df.aux$StreamingTV)
+table(df.aux$StreamingMovies)
 ```
 
 
@@ -159,55 +162,63 @@ barplot(table(df$InternetService),col='lightblue') #Unbalanced
 ```
 
 #OnlineSecurity
-Those clients without internet service are a minority as they were in the previous variable, and most of those with internet service don't have OnlineSecurity
+Those clients without internet service are a minority as they were in the previous variable, and most of those with internet service don't have OnlineSecurity.
 ```{r}
 no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
 barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
 ```
 
 #OnlineBackup
+Similar to previous variable
 ```{r}
 na.onlinebackup <- sum(is.na(df$OnlineBackup)) #No NAs
 barplot(table(df$OnlineBackup),col='lightblue') #Unbalanced
 ```
 
 #DeviceProtection
+Similar to previous variable
 ```{r}
 na.deviceprotection <- sum(is.na(df$DeviceProtection)) #No NAs
 barplot(table(df$DeviceProtection),col='lightblue') #Unbalanced
 ```
 
 #TechSupport
+Similar to previous variable
 ```{r}
 na.techsupport <- sum(is.na(df$TechSupport)) #No NAs
 barplot(table(df$TechSupport),col='lightblue') #Unbalanced in "No"
 ```
 
 #StreamingMovies
+In this case, disregarding the users without internet service, the categories are balanced.
 ```{r}
 na.streamingmovies <- sum(is.na(df$StreamingMovies)) #No NAs
 barplot(table(df$StreamingMovies),col='lightblue') #Unbalanced in "No internet service"
 ```
 
 #Contract
+Most of the contracts are month to month.
 ```{r}
 na.contract <- sum(is.na(df$Contract)) #No NAs
 barplot(table(df$Contract),col='lightblue') #Unbalanced in "Month-to-month"
 ```
 
 #PaperlessBilling
+This variable is pretty much balanced, with more population towards having PaperlessBilling.
 ```{r}
 na.paperlessbilling <- sum(is.na(df$PaperlessBilling)) #No NAs
 barplot(table(df$PaperlessBilling),col='lightblue') #Relatively balanced
 ```
 
 #PaymentMethod
+Most of the customers use electronic check.
 ```{r}
 na.paymentmethod <- sum(is.na(df$PaymentMethod)) #No NAs
-barplot(table(df$PaymentMethod),col='lightblue') #Unbalanced in "Credit card (automatic)"
+barplot(table(df$PaymentMethod),col='lightblue') #Unbalanced in "Electronic check"
 ```
 
 #MonthlyCharges
+We can see that most of population concentrates around 20 units of MothlyCharges. Not normally distributed. No univariate outliers. 
 ```{r}
 na.monthlycharges <- sum(is.na(df$MonthlyCharges)) #No NAs
 hist(df$MonthlyCharges,freq=F,15)
@@ -221,6 +232,7 @@ Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe
 ```
 
 #TotalCharges
+Again, most of the population groups around small values. Not normally distributed. No univariate outliers.  
 ```{r}
 na.totalcharges <- sum(is.na(df$TotalCharges)) #11 NAs imputed earlier
 hist(df$TotalCharges,freq=F,15)
@@ -234,6 +246,7 @@ Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe u
 ```
 
 #Target Variable: Churn
+We can see our target variable is unbalanced, being most of the customers in No. 
 ```{r}
 na.churn <- sum(is.na(df$Churn)) #No NAs
 barplot(table(df$Churn),col='lightblue') #Unbalanced
