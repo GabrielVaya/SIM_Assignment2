@@ -41,13 +41,13 @@ library(effects)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
-setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
+#setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
 #setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
 df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
-df <- WA_Fn_UseC_Telco_Customer_Churn
+#df <- WA_Fn_UseC_Telco_Customer_Churn
 
 df$MonthlyCharges <- as.numeric(df$MonthlyCharges)
 df$TotalCharges <- as.numeric(df$TotalCharges)
@@ -229,6 +229,9 @@ res.cat$category
 ```
 
 #Correlations and Associations
+If we plot the correlations between the numeric variables, the heatmap shows that MonthlyCharges and tenure are not correlated. However, intuitively TotalCharges and MonthlyCharges are positively correlated at approximately 0.5. This makes sense as the higher your monthly charges are the higher your total charges will be. Similarly, tenure has a relatively high positive correlation with TotalCharges. Once again this makes sense because the longer you are subscribed for the higher your total overall charges will be.
+
+To further our analysis on the relationship between variables we make use of a function that plots mixed associations using the Chisquare p-values and CramersV, for numeric and categorical variables (this function was found at https://stackoverflow.com/questions/52554336/plot-the-equivalent-of-correlation-matrix-for-factors-categorical-data-and-mi by AntoniosK on StackOverflow). Note that to interpret the graph, the color of the cells indicate the Chisquared p-value (red meaning highly related), and the label found in the cells indicated the CramersV (1 indicated a perfect association). Interestingly it seems that most variables are related according to the Chisquared test, as most cells are deep red, except for gender which according to the Chisquared independence test does not show any significant relationship with the other variables. When looking at the CramersV (labels in the cells), we can see that TotalCharges has an almost perfect association with Churn the target, and all the other variables. Aside from TotalCharges, no other variable has a near perfect association with another variables.
 ```{r}
 num <- which(sapply(df,is.numeric))
 
@@ -239,6 +242,8 @@ vis_cor(df[,num])
 # Mixed Associations (using Chisquared pvalue and CramersV)
 cat <- which(sapply(df, function(x) is.factor(x) || is.character(x)))
 
+df_corr <- df[,-1]
+
 # function to get chi square p value and Cramers V
 f = function(x,y) {
     tbl = df %>% select(x,y) %>% table()
@@ -248,7 +253,7 @@ f = function(x,y) {
 
 # create unique combinations of column names
 # sorting will help getting a better plot (upper triangular)
-df_comb = data.frame(t(combn(sort(names(df)), 2)), stringsAsFactors = F)
+df_comb = data.frame(t(combn(sort(names(df_corr)), 2)), stringsAsFactors = F)
 
 # apply function to each variable combination
 df_res = map2_df(df_comb$X1, df_comb$X2, f)
@@ -489,7 +494,9 @@ rownames(df) <- NULL
 
 #Interpretation
 Now that we have our influential data removed, let's move on to the interpretation of the model. Let's keep in mind that the base class for this model is Churn:No. To start with the numerical variables, MonthlyCharges parameter is negative, which means that, as the amount charged by the month increases, it decreases the probability in the logodds scale that a customer will leave by 1.514e-03 units, which is not very much so we could consider it neutral. In the case of tenure, we see that as a client stays more months in the company, the probability of it to leave is 6.892e+0 units less in the logodds scale. This, a priori, speaks well of the company, since it is clear that clients tend to leave less as they experiment its services over time. However, the transformation of tenure^2 has the opposite effect, meaning that with clients that have been a lot of months in the company are more probable to leave. 
+
 Now for the categorical variables. Looking at contract we can see that, over the base class which is month to month, customers with contracts of one year are a little less probable to leave, and even less for contracts of two years, that are 3.798e+00 units less probable to leave in the logodds scale. In the case of InternetService, No internet service and Fiber are less probable to leave than DSL. Then, we see that SeniorCitizens are more probable to leave, which maybe can be explained because they are more probable to die. Futhermore, those clients with No phone service or multiple lines are more likely to leave than those with only one phone line. The paperless bill also plays a part, since those using a paperless (online) bill are 3.838e-01 units more probable to leave in the logodds scale than those with paper bill. That can be maybe attributed to the fact that many paper bill users don't even see the bill, since paper mail is given less attention these days. In terms of payment method, MailedCheck makes it less likely for the clients to leave than Bank transfer (the base class), which has to do with what was mentioned earlier in the Paperless bill. The same phenomena is observed with CreditCard payment although it is not as pronounced. The opposite is observed with Wlectronic check, since users of this payment method are more likely to leave the company. 
+
 Finally, let's look at the interactions. To start with, we have the interaction between the transformed tenure and Contracts. We can see that, regarding one year contracts, the probability of a customer to leave increases 2.276e+01 units in the logodds scale as tenure months increase compared to those customers with month to month contracts; and the probability of a customer to leave decreases 2.297e+01 units in the logodds scale as tenure^2 months increase. Similar with two-year contracts but not as pronounced. This means that, customers with one year or two year contracts are more likely to leave than those with month to month contracts over the months. However, the opposite happens with tenure^2, which means that if you look over large periods of time moving faster, customers with closed contracts are less likely to leave than those with month to month contracts. To end with, let's look at the interaction between MonthlyCharges and InternetService. We can see that those customers with Fiber optic are more likely to leave as their monthly charges go up than those with DSL, and the opposite with those with no internet service. However, the coeficients are relatively small, so no further conclusions must be dragged from this. 
 ```{r}
 fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
