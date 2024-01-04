@@ -284,7 +284,10 @@ plot(res.mout$md, res.mout$rd)
 ```
 Maybe because there is continuity in the distribution we don't take them out (see plot)
 
-#Profiling of target variable 
+#Profiling of target variable
+We can see from the summary of the target variable Churn that it is highly unbalanced. 73% of all instances do not Churn. This may be a problem when building a model that we must keep in mind.
+
+Using catdes we can see that the most highly related categorical variables are Contract, OnlineSecurity, TechSupport, InternetService, PaymentMethod, ONlineBackup, DeviceProtection, StreamingMovies, StreamingTV, PaperlessBilling, Dependents, SeniorCitizen, Partner, and MultipleLines. All of these variables also have an extremely low p-value (far below the 5% significance level) which indicates a strong link to the target. For the quantitative variables, we can see that the target Churn is highly linked to all the numeric variables, tenure, TotalCharges, and MonthlyCharges.
 ```{r}
 summary(df$Churn)
 ptt<-prop.table(table(df$Churn));ptt
