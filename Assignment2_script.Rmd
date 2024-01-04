@@ -67,7 +67,7 @@ dup <- which(duplicated(df)) #No duplicate rows
 ```
 
 #Missing Values
-For the missing data, we can...
+Null values only found in TotalCharges. However, the null values are not random, as shown by the mcar_test function, with a p-value of 0. We can see that the TotalCharges are null when tenure is 0, which makes sense intuitively thus we changed the null values in TotalCharges to 0.
 ```{r}
 vis_miss(df)
 df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
@@ -78,6 +78,7 @@ df$TotalCharges[is.na(df$TotalCharges)] <- 0 #impute with 0
 ```
 
 #Deduplication (again)
+No duplicate rows that need to be removed.
 ```{r}
 dup <- which(duplicated(df)) #No duplicate rows
 ```
@@ -93,30 +94,35 @@ df.aux[df.aux$TheoreticalTotalCharges > df.aux$TotalCharges,]
 #EDA (+ Univariate Outliers)
 
 #gender
+No null values, and balanced.
 ```{r}
 na.gender <- sum(is.na(df$gender)) #No NAs
 barplot(table(df$gender),col='lightblue') #Balanced
 ```
 
 #SeniorCitizen
+No null values, but unbalanced.
 ```{r}
 na.seniorcitizen <- sum(is.na(df$SeniorCitizen)) #No NAs
 barplot(table(df$SeniorCitizen),col='lightblue') #Unbalanced
 ```
 
 #Partner
+No null values, and balanced.
 ```{r}
 na.partner <- sum(is.na(df$Partner)) #No NAs
 barplot(table(df$Partner),col='lightblue') #Balanced
 ```
 
 #Dependents
+No null values, but unbalanced.
 ```{r}
 na.dependents <- sum(is.na(df$Dependents)) #No NAs
 barplot(table(df$Dependents),col='lightblue') #Unbalanced
 ```
 
 #tenure
+No null values, and young customers overrepresented. Not normally distributed with no mild/severe univariate outliers.
 ```{r}
 na.tenure <- sum(is.na(df$tenure)) #No NAs
 hist(df$tenure,freq=F,15) #Young customers overrepresented
@@ -129,72 +135,84 @@ Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univar
 ```
 
 #PhoneService
+No null values, but unbalanced.
 ```{r}
 na.phoneservice <- sum(is.na(df$PhoneService)) #No NAs
 barplot(table(df$PhoneService),col='lightblue') #Unbalanced
 ```
 
 #MultipleLines
+No null values, but unbalanced in "No phone service".
 ```{r}
 na.multiplelines <- sum(is.na(df$MultipleLines)) #No NAs
 barplot(table(df$MultipleLines),col='lightblue') #Unbalanced in "No phone service"
 ```
 
 #InternetService
+No null values, but unbalanced.
 ```{r}
 na.internetservice <- sum(is.na(df$InternetService)) #No NAs
 barplot(table(df$InternetService),col='lightblue') #Unbalanced
 ```
 
 #OnlineSecurity
+No null values, but unbalanced in "No".
 ```{r}
 no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
 barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
 ```
 
 #OnlineBackup
+No null values, but unbalanced.
 ```{r}
 na.onlinebackup <- sum(is.na(df$OnlineBackup)) #No NAs
 barplot(table(df$OnlineBackup),col='lightblue') #Unbalanced
 ```
 
 #DeviceProtection
+No null values, but unbalanced.
 ```{r}
 na.deviceprotection <- sum(is.na(df$DeviceProtection)) #No NAs
 barplot(table(df$DeviceProtection),col='lightblue') #Unbalanced
 ```
 
 #TechSupport
+No null values, but unbalanced in "No".
 ```{r}
 na.techsupport <- sum(is.na(df$TechSupport)) #No NAs
 barplot(table(df$TechSupport),col='lightblue') #Unbalanced in "No"
 ```
 
 #StreamingMovies
+No null values but unbalanced in "No internet service".
 ```{r}
 na.streamingmovies <- sum(is.na(df$StreamingMovies)) #No NAs
 barplot(table(df$StreamingMovies),col='lightblue') #Unbalanced in "No internet service"
 ```
 
 #Contract
+No null values, but unbalanced in "Month-to-month".
 ```{r}
 na.contract <- sum(is.na(df$Contract)) #No NAs
 barplot(table(df$Contract),col='lightblue') #Unbalanced in "Month-to-month"
 ```
 
 #PaperlessBilling
+No null values and relatively balanced.
 ```{r}
 na.paperlessbilling <- sum(is.na(df$PaperlessBilling)) #No NAs
 barplot(table(df$PaperlessBilling),col='lightblue') #Relatively balanced
 ```
 
 #PaymentMethod
+No null values. Very unbalanced in "Credit card (automatic")
 ```{r}
 na.paymentmethod <- sum(is.na(df$PaymentMethod)) #No NAs
 barplot(table(df$PaymentMethod),col='lightblue') #Unbalanced in "Credit card (automatic)"
 ```
 
 #MonthlyCharges
+No null values, not normally distributed and no mild/severe univariate outliers.
 ```{r}
 na.monthlycharges <- sum(is.na(df$MonthlyCharges)) #No NAs
 hist(df$MonthlyCharges,freq=F,15)
@@ -208,6 +226,7 @@ Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe
 ```
 
 #TotalCharges
+11 null values, not normally distributed and no mild/severe univariate outliers.
 ```{r}
 na.totalcharges <- sum(is.na(df$TotalCharges)) #11 NAs imputed earlier
 hist(df$TotalCharges,freq=F,15)
