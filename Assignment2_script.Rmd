@@ -41,10 +41,10 @@ library(effects)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
 #setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
-#setwd("D:/MDS/ADSDB/SIM_Assignment2")
+setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
 df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 #df <- WA_Fn_UseC_Telco_Customer_Churn
@@ -60,14 +60,8 @@ levels(df$SeniorCitizen) <- c("No","Yes")
 
 #DataPreparation
 
-#Deduplication
-Now we check for duplicates in the dataset, and we see all rows are distinct. 
-```{r}
-dup <- which(duplicated(df)) #No duplicate rows
-```
-
 #Missing Values
-For the missing data, we can...
+For the missing data, we see that there are only 11 missing values. If we look even closer, we can see they are all in the same variable, TotalCharges. Analysing even further, we can see those missing values are corresponding to those clients with 0 month of tenure. Hence are imputing them with 0. 
 ```{r}
 vis_miss(df)
 df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
@@ -77,7 +71,8 @@ df$tenure[is.na(df$TotalCharges)] #TotalCharges are NA when tenure is 0
 df$TotalCharges[is.na(df$TotalCharges)] <- 0 #impute with 0
 ```
 
-#Deduplication (again)
+#Deduplication 
+Once imputed, we look into the duplicate rows. 
 ```{r}
 dup <- which(duplicated(df)) #No duplicate rows
 ```
@@ -87,36 +82,50 @@ dup <- which(duplicated(df)) #No duplicate rows
 df.aux <- df
 df.aux$TheoreticalTotalCharges <- df.aux$tenure*df.aux$MonthlyCharges
 df.aux[df.aux$TheoreticalTotalCharges > df.aux$TotalCharges,]
+
+#Look at phone service
+table(df.aux$PhoneService)
+table(df.aux$MultipleLines)
+
+#Look at internet service
+table(df.aux$OnlineSecurity)
+table(df.aux$OnlineBackup)
+table(df.aux$InternetService)
 ```
 
 
 #EDA (+ Univariate Outliers)
 
 #gender
+This is the gender of the customer, which as we can see is balanced throughout the dataset.
 ```{r}
 na.gender <- sum(is.na(df$gender)) #No NAs
 barplot(table(df$gender),col='lightblue') #Balanced
 ```
 
 #SeniorCitizen
+As far as SeniorCitizen, there is much less SeniorCitizens as you can imagine.
 ```{r}
 na.seniorcitizen <- sum(is.na(df$SeniorCitizen)) #No NAs
 barplot(table(df$SeniorCitizen),col='lightblue') #Unbalanced
 ```
 
 #Partner
+Those are customers with partner, and we see it is pretty balanced.
 ```{r}
 na.partner <- sum(is.na(df$Partner)) #No NAs
 barplot(table(df$Partner),col='lightblue') #Balanced
 ```
 
 #Dependents
+The dependent customers follow a similar distribution than the SeniorCitizen.
 ```{r}
 na.dependents <- sum(is.na(df$Dependents)) #No NAs
 barplot(table(df$Dependents),col='lightblue') #Unbalanced
 ```
 
 #tenure
+This is the months that a customers have been in the company. We can see that the majority of the customer base are recent customers. We can see that, using an Anderson-Darling test the variable is not normally distributied, and has no univariate outliers.
 ```{r}
 na.tenure <- sum(is.na(df$tenure)) #No NAs
 hist(df$tenure,freq=F,15) #Young customers overrepresented
@@ -129,24 +138,28 @@ Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univar
 ```
 
 #PhoneService
+Now we can see that the majority of the clients have PhoneService in the contract.
 ```{r}
 na.phoneservice <- sum(is.na(df$PhoneService)) #No NAs
 barplot(table(df$PhoneService),col='lightblue') #Unbalanced
 ```
 
 #MultipleLines
+As we saw before, the majority of the clients have PhoneService, so they are underrepresented in this variable, but regarding those who have, MultipleLines is pretty balanced.
 ```{r}
 na.multiplelines <- sum(is.na(df$MultipleLines)) #No NAs
 barplot(table(df$MultipleLines),col='lightblue') #Unbalanced in "No phone service"
 ```
 
 #InternetService
+Most of the clients have fiber optic, and there are a few that don't have internet service.
 ```{r}
 na.internetservice <- sum(is.na(df$InternetService)) #No NAs
 barplot(table(df$InternetService),col='lightblue') #Unbalanced
 ```
 
 #OnlineSecurity
+Those clients without internet service are a minority as they were in the previous variable, and most of those with internet service don't have OnlineSecurity
 ```{r}
 no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
 barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
@@ -224,8 +237,6 @@ Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe u
 ```{r}
 na.churn <- sum(is.na(df$Churn)) #No NAs
 barplot(table(df$Churn),col='lightblue') #Unbalanced
-res.cat <- catdes(df,21)
-res.cat$category
 ```
 
 #Correlations and Associations
@@ -373,8 +384,6 @@ summary(cm2)
 ```
 
 # CM2: Residual Analysis and Influential Data
-(RESIDUAL ANALYSIS)
-
 From the general influencePlot we can see that there are a couple possible outliers that need further investivation such as observations 3821 and 489, which seem to have abnormally high hat values. These same points stand out in the influenceIndexPlot. When we now draw a boxplot of the hat values and draw a cutoff line at the typical cutoff 4*p/n, we see that point 489 is the only one above this cutoff, with point 2819 just below. Thus, we remove observation 489.
 
 When we further investigate Cooks' Distance using influenceIndexPlot we see more observations stand out with observations 3972 and 5948 being fat above the rest. Now when we draw the boxplot, we again see these two points stand out with several other points. Here there is no clear cutoff as the observations splinter into groups, where one group has a large distance to the rest, and then the two observations mentioned even further than this. Thus, to not lose too much valuable information we decide to remove only the two largest outliers, thus moving the cutoff to 0.0033. When comparing the Cooks outliers summaries to the all the data it is difficult to see where they are different. They seem to generally have lower charges (monthly and total), with longer tenure but nothing noteworthy that would suggest why they seem to be so influential from the summary statistics alone.
@@ -456,6 +465,7 @@ anova(gm3,gm5,test="Chisq") #p-value 0.035
 ```
 In this final case, we could reject the null hypothesis at 95% confidence, but we decide to take this interaction  out of the model.
 
+
 #Train-test validation & final interpretation
 This is the final model as it is. First of all we are going to make a residual analysis and, if there is any, take out the influential data to get the model performing at its best, before intepreting it and testing it. 
 ```{r}
@@ -465,8 +475,6 @@ Anova(fm)
 ```
 
 #Residual Analysis and Influential Data
-(RESIDUAL ANALYSIS)
-
 From the influencePlot of the final model we see that there may be a lot of observations with abnormally high hat values that must be investigated, as well as some observations with extreme Cooks' Distances. When checking the influenceIndexPlot we can see many observations that stand out above the rest, for example observation 2367 and 3663. When the boxplot is plotted with the cutoff at 4*p/n we find that 56 observations are above this cutoff. We decide to remove all of these observations.
 
 When analyzing the Cooks' Distance using influenceIndexPlot we see only two observations that stand out far above the rest, 3969 and 5942. When we continue by drawing the boxplot we get the same result, and thus set the cutoff at 0.01 to remove these observations. Once again the analysis of the summary statistics is not very revealing, the outliers seem to have much lower charges (monthly and total), however the comparison between other factors is not adequate as there are only two outliers.
