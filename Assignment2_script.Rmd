@@ -392,6 +392,8 @@ summary(cm2)
 ```
 
 #  CM2: Residual Analysis and Influential Data  
+(INTERPRETATION OF RESIDUAL PLOTS)
+
 From the general influencePlot we can see that there are a couple possible outliers that need further investivation such as observations 3821 and 489, which seem to have abnormally high hat values. These same points stand out in the influenceIndexPlot. When we now draw a boxplot of the hat values and draw a cutoff line at the typical cutoff 4*p/n, we see that point 489 is the only one above this cutoff, with point 2819 just below. Thus, we remove observation 489.  
 
 When we further investigate Cooks' Distance using influenceIndexPlot we see more observations stand out with observations 3972 and 5948 being fat above the rest. Now when we draw the boxplot, we again see these two points stand out with several other points. Here there is no clear cutoff as the observations splinter into groups, where one group has a large distance to the rest, and then the two observations mentioned even further than this. Thus, to not lose too much valuable information we decide to remove only the two largest outliers, thus moving the cutoff to 0.0033. When comparing the Cooks outliers summaries to the all the data it is difficult to see where they are different. They seem to generally have lower charges (monthly and total), with longer tenure but nothing noteworthy that would suggest why they seem to be so influential from the summary statistics alone.
@@ -483,6 +485,8 @@ Anova(fm)
 ```
 
 #  FM: Residual Analysis and Influential Data  
+(INTERPRETATION OF RESIDUAL PLOTS)
+
 From the influencePlot of the final model we see that there may be a lot of observations with abnormally high hat values that must be investigated, as well as some observations with extreme Cooks' Distances. When checking the influenceIndexPlot we can see many observations that stand out above the rest, for example observation 2367 and 3663. When the boxplot is plotted with the cutoff at 4*p/n we find that 56 observations are above this cutoff. We decide to remove all of these observations.  
 
 When analyzing the Cooks' Distance using influenceIndexPlot we see only two observations that stand out far above the rest, 3969 and 5942. When we continue by drawing the boxplot we get the same result, and thus set the cutoff at 0.01 to remove these observations. Once again the analysis of the summary statistics is not very revealing, the outliers seem to have much lower charges (monthly and total), however the comparison between other factors is not adequate as there are only two outliers.
