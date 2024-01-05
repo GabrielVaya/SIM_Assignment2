@@ -66,7 +66,7 @@ Please note, only variables that are found in the final model have their explora
 For the missing data, we see that there are only 11 missing values. If we look even closer, we can see they are all in the same variable, TotalCharges. Analysing even further, we can see those missing values are corresponding to those clients with 0 month of tenure. Hence are imputing them with 0. 
 ```{r}
 vis_miss(df) +
-  theme(axis.text.x =  element_text(angle = 80))
+  theme(axis.text.x =  element_text(angle = 90))
 #df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
 
 mcar_test(df) #p-value is 0 -> not random
