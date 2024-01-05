@@ -42,10 +42,10 @@ library(effects)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
 #setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
-#setwd("D:/MDS/ADSDB/SIM_Assignment2")
+setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
 df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 #df <- WA_Fn_UseC_Telco_Customer_Churn
@@ -319,32 +319,28 @@ plot(res.mout$md, res.mout$rd)
 Now we enter into the modelling stage of the analysis. We first want to construct a robust numerical model, in order to add transformations in the numerical variables. Afterwards we will add the main categorical variables into this best numerical model, and finally we will look at interactions between variables to make the final model.
 
 #  Model with numerical variables  
-We only have 3 numerical variables, so, in the first place, we construct a model with all 3 numerical variables: tenure, MonthlyCharges and TotalCharges. We are suspicious of multicolinearity regarding TotalCharges, since the number calculated by multiplying the tenure months by MonthlyCharges gives a similar result than the TotalCharges value (with small a deviation probably coming from opening fees or discounts in the different contracts). (...)
+We only have 3 numerical variables, so, in the first place, we construct a model with all 3 numerical variables: tenure, MonthlyCharges and TotalCharges. We are suspicious of multicolinearity regarding TotalCharges, since the number calculated by multiplying the tenure months by MonthlyCharges gives a similar result than the TotalCharges value (with small a deviation probably coming from opening fees or discounts in the different contracts). 
 ```{r}
 attach(df)
 nm1 <- glm(Churn ~ tenure + MonthlyCharges + TotalCharges, family="binomial", data = df)
-summary(nm1)
 vif.nm1 <- vif(nm1);vif.nm1
 step(nm1,k= log(nrow(df))) 
 ```
-
+We perform an anova test to see if the variance explained by the two models is the same
 ```{r}
 nm2 <- glm(Churn ~ tenure + MonthlyCharges, family="binomial", data = df)
-summary(nm2)
-anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence that the variance explained is the same. We don't at 99% confidence.
+anova(nm2,nm1,test="Chisq") #p-value: 0.02277 
 ```
-
+Since the p-value is 0.02277, at 99% confidence we do not reject and accept the simple model as the best one. 
 
 #  Transformations of numerical variables  
 Firstly, we examine marginalModelPlots to gain insights into which variables effectively fit the model. Subsequently, we observed the necessity for a transformation in the tenure variable.
 A reduction of one unit in tenure is associated with a log-odds increase of -0.054850 for Churn. Consequently, implementing a Square Root Transformation becomes imperative.
 ```{r}
 nm3 <- glm(Churn ~ tenure+ I(tenure^2) + MonthlyCharges, family="binomial", data = df)
-summary(nm3)
 marginalModelPlots(nm3)
 
 nm4 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges, family="binomial", data = df)
-summary(nm4)
 marginalModelPlots(nm4)
 ```
 
@@ -382,13 +378,11 @@ rownames(df) <- NULL
 Now we attempt to add our factor variables to the model. First we are building an inicial model with the main numerical variables and all the categorical ones, which will obviously result in a too complex model to be analysed or properly interpreted. After that, we are conducting an Anova Chisq test to assess the significance of each categorical variable. 
 ```{r}
 cm1 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + gender + SeniorCitizen + Partner + Dependents + PhoneService + MultipleLines + InternetService + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + StreamingTV + StreamingMovies + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
-summary(cm1)
 Anova(cm1,test="LR")
 ```
 This Anova tests suggests, at 95% confidence, to take out of the modeling the following variables: gender, Partner, Dependets, PhoneService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV and StreamingMovies. Now we construct a model only with the significant variables.
 ```{r}
 cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
-summary(cm2)
 ```
 
 #  CM2: Residual Analysis and Influential Data  
@@ -444,44 +438,36 @@ We will be adding interactions one by one to our model, and we will see if they 
 First we look into the interaction between Contract and the transformed tenure. We can see that the role it performs on the model is to ... . Then, we perform an Fisher test to see if the variances explained by the two models are the same or not. 
 ```{r}
 gm1 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
-summary(gm1)
-#DOES WORK
 anova(cm2,gm1,test="Chisq") #p-value 2.982e-06
 ```
 We can see that the p-value in this case is 2.982e-06, so we reject the null hypothesis and we decide to keep the interaction forward. 
 Now let's look at the interactions regarding MonthlyCharges, starting by its interaction with MultipleLines.
 ```{r}
 gm2 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*MultipleLines + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
-summary(gm2)
 anova(gm1,gm2,test="Chisq") #p-value 0.01424 
 ```
 In this case, the p-value is 0.01424, which would make us reject the hypothesis at 99% confidence, but accept it at 95%. We decide to take it out of the model.
 ```{r}
 gm3 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
-summary(gm3)
 anova(gm1,gm3,test="Chisq") #p-value 0.005535  
 ```
 This time, the p-value is 0.005535, so we will keep the interaction in the model.
 ```{r}
 gm4 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*(InternetService + Contract) + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
-summary(gm4)
 anova(gm3,gm4,test="Chisq") #p-value 0.8 
 ```
 Now the p-value is 0.8, so we accept the null hypothesis and not keep this interaction.
 ```{r}
 gm5 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen*PaymentMethod + MultipleLines + InternetService + PaperlessBilling , family="binomial", data = df)
-summary(gm5)
 anova(gm3,gm5,test="Chisq") #p-value 0.035   
 ```
-In this final case, we could reject the null hypothesis at 95% confidence, but we decide to take this interaction  out of the model.
+In this final case, we could reject the null hypothesis at 95% confidence, but we decide to take this interaction  out of the model. The best model is gm3. 
 
 
 # Train-test validation & Final interpretation  
 This is the final model as it is. First of all we are going to make a residual analysis and, if there is any, take out the influential data to get the model performing at its best, before intepreting it and testing it. 
 ```{r}
 fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
-summary(fm)
-Anova(fm)
 ```
 
 #  FM: Residual Analysis and Influential Data  
