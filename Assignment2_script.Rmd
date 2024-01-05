@@ -1,6 +1,6 @@
 ---
-title: "Untitled"
-author: "Gabriel Vayá"
+title: "Statistical Inference and Modelling: Assignment 2"
+author: "Gabriel Vayá, Arnau Torru, Darryl Abraham"
 date: "2023-12-13"
 output: 
   pdf_document: 
@@ -101,35 +101,35 @@ table(df.aux$StreamingMovies)
 
 # EDA (+ Univariate Outliers)  
 
-#  gender  
+#Gender  
 This is the gender of the customer, which as we can see is balanced throughout the dataset.
 ```{r}
 na.gender <- sum(is.na(df$gender)) #No NAs
 barplot(table(df$gender),col='lightblue') #Balanced
 ```
 
-#  SeniorCitizen  
+#SeniorCitizen  
 As far as SeniorCitizen, there is much less SeniorCitizens as you can imagine.
 ```{r}
 na.seniorcitizen <- sum(is.na(df$SeniorCitizen)) #No NAs
 barplot(table(df$SeniorCitizen),col='lightblue') #Unbalanced
 ```
 
-#  Partner  
+#Partner  
 Those are customers with partner, and we see it is pretty balanced.
 ```{r}
 na.partner <- sum(is.na(df$Partner)) #No NAs
 barplot(table(df$Partner),col='lightblue') #Balanced
 ```
 
-#  Dependents  
+#Dependents  
 The dependent customers follow a similar distribution than the SeniorCitizen.
 ```{r}
 na.dependents <- sum(is.na(df$Dependents)) #No NAs
 barplot(table(df$Dependents),col='lightblue') #Unbalanced
 ```
 
-#  tenure  
+#Tenure  
 This is the months that a customers have been in the company. We can see that the majority of the customer base are recent customers. We can see that, using an Anderson-Darling test the variable is not normally distributied, and has no univariate outliers.
 ```{r}
 na.tenure <- sum(is.na(df$tenure)) #No NAs
@@ -142,84 +142,84 @@ Boxplot(df$tenure,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univari
 Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
 ```
 
-#  PhoneService  
+#PhoneService  
 Now we can see that the majority of the clients have PhoneService in the contract.
 ```{r}
 na.phoneservice <- sum(is.na(df$PhoneService)) #No NAs
 barplot(table(df$PhoneService),col='lightblue') #Unbalanced
 ```
 
-#  MultipleLines  
+#MultipleLines  
 As we saw before, the majority of the clients have PhoneService, so they are underrepresented in this variable, but regarding those who have, MultipleLines is pretty balanced.
 ```{r}
 na.multiplelines <- sum(is.na(df$MultipleLines)) #No NAs
 barplot(table(df$MultipleLines),col='lightblue') #Unbalanced in "No phone service"
 ```
 
-#  InternetService  
+#InternetService  
 Most of the clients have fiber optic, and there are a few that don't have internet service.
 ```{r}
 na.internetservice <- sum(is.na(df$InternetService)) #No NAs
 barplot(table(df$InternetService),col='lightblue') #Unbalanced
 ```
 
-#  OnlineSecurity  
+#OnlineSecurity  
 Those clients without internet service are a minority as they were in the previous variable, and most of those with internet service don't have OnlineSecurity.
 ```{r}
 no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
 barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
 ```
 
-#  OnlineBackup  
+#OnlineBackup  
 Similar to previous variable
 ```{r}
 na.onlinebackup <- sum(is.na(df$OnlineBackup)) #No NAs
 barplot(table(df$OnlineBackup),col='lightblue') #Unbalanced
 ```
 
-#  DeviceProtection  
+#DeviceProtection  
 Similar to previous variable
 ```{r}
 na.deviceprotection <- sum(is.na(df$DeviceProtection)) #No NAs
 barplot(table(df$DeviceProtection),col='lightblue') #Unbalanced
 ```
 
-#  TechSupport  
+#TechSupport  
 Similar to previous variable
 ```{r}
 na.techsupport <- sum(is.na(df$TechSupport)) #No NAs
 barplot(table(df$TechSupport),col='lightblue') #Unbalanced in "No"
 ```
 
-#  StreamingMovies  
+#StreamingMovies  
 In this case, disregarding the users without internet service, the categories are balanced.
 ```{r}
 na.streamingmovies <- sum(is.na(df$StreamingMovies)) #No NAs
 barplot(table(df$StreamingMovies),col='lightblue') #Unbalanced in "No internet service"
 ```
 
-#  Contract  
+#Contract  
 Most of the contracts are month to month.
 ```{r}
 na.contract <- sum(is.na(df$Contract)) #No NAs
 barplot(table(df$Contract),col='lightblue') #Unbalanced in "Month-to-month"
 ```
 
-#  PaperlessBilling  
+#PaperlessBilling  
 This variable is pretty much balanced, with more population towards having PaperlessBilling.
 ```{r}
 na.paperlessbilling <- sum(is.na(df$PaperlessBilling)) #No NAs
 barplot(table(df$PaperlessBilling),col='lightblue') #Relatively balanced
 ```
 
-#  PaymentMethod  
+#PaymentMethod  
 Most of the customers use electronic check.
 ```{r}
 na.paymentmethod <- sum(is.na(df$PaymentMethod)) #No NAs
 barplot(table(df$PaymentMethod),col='lightblue') #Unbalanced in "Electronic check"
 ```
 
-#  MonthlyCharges  
+#MonthlyCharges  
 We can see that most of population concentrates around 20 units of MothlyCharges. Not normally distributed. No univariate outliers. 
 ```{r}
 na.monthlycharges <- sum(is.na(df$MonthlyCharges)) #No NAs
@@ -233,7 +233,7 @@ Boxplot(df$MonthlyCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild
 Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
 ```
 
-#  TotalCharges  
+#TotalCharges  
 Again, most of the population groups around small values. Not normally distributed. No univariate outliers.  
 ```{r}
 na.totalcharges <- sum(is.na(df$TotalCharges)) #11 NAs imputed earlier
@@ -482,7 +482,7 @@ summary(fm)
 Anova(fm)
 ```
 
-#  Residual Analysis and Influential Data  
+#  FM: Residual Analysis and Influential Data  
 From the influencePlot of the final model we see that there may be a lot of observations with abnormally high hat values that must be investigated, as well as some observations with extreme Cooks' Distances. When checking the influenceIndexPlot we can see many observations that stand out above the rest, for example observation 2367 and 3663. When the boxplot is plotted with the cutoff at 4*p/n we find that 56 observations are above this cutoff. We decide to remove all of these observations.  
 
 When analyzing the Cooks' Distance using influenceIndexPlot we see only two observations that stand out far above the rest, 3969 and 5942. When we continue by drawing the boxplot we get the same result, and thus set the cutoff at 0.01 to remove these observations. Once again the analysis of the summary statistics is not very revealing, the outliers seem to have much lower charges (monthly and total), however the comparison between other factors is not adequate as there are only two outliers.
