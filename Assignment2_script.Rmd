@@ -41,10 +41,10 @@ library(effects)
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
 #setwd("/Users/gabrielvayaabad/Desktop/MDS/SIM/Assignment 2")
 #setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
-setwd("D:/MDS/ADSDB/SIM_Assignment2")
+#setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
 df <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 #df <- WA_Fn_UseC_Telco_Customer_Churn
@@ -524,12 +524,12 @@ summary(fm)
 ```
 
 #Test-train
-Initially, the dataset was partitioned into two subsets, namely the training set, comprising 80% of the data, and the test set, consisting of 20%. Subsequently, the model was trained using the training data to predict churn. The next step involved predicting dropout in the test dataset, and the results were then printed.
+Initially, the dataset was partitioned into two subsets, namely the training set, comprising 80% of the data, and the test set, consisting of 20%. Subsequently, the model was trained using the training data to predict churn. The next step involved predicting dropout in the test dataset. The model achieved an accuracy of 80%.
 
 To evaluate the model, precision was calculated by examining the consistency of results between the two sets. Finally, an additional assessment was conducted using the ROC curve. The Area Under the Curve (AUC) on the Receiver Operating Characteristic (ROC) curve serves as a metric for gauging the classifier's efficacy in distinguishing between positive and negative classes. An AUC value of 0.87 suggests relatively robust performance, categorizing it as excellent.
 ```{r}
 # Install and load the pROC package
-install.packages("pROC")
+#install.packages("pROC")
 library(pROC)
 
 set.seed(1234)
@@ -548,9 +548,6 @@ head(fm_pred, 10)
 
 # Check model performance
 test_data$predict.Churn <- ifelse(fm_pred < 0.5, "No", "Yes")
-
-head(test_data$Churn, 5)
-head(test_data$predict.Churn, 5)
 
 # Accuracy
 accuracy <- mean(test_data$predict.Churn == test_data$Churn)
