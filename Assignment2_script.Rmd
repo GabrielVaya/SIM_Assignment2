@@ -82,7 +82,7 @@ In the errors, we want to see, first of all we look for huge discrepancies betwe
 ```{r}
 df.aux <- df
 df.aux$TheoreticalTotalCharges <- df.aux$tenure*df.aux$MonthlyCharges
-df.aux[df.aux$TheoreticalTotalCharges > df.aux$TotalCharges,]
+#df.aux[df.aux$TheoreticalTotalCharges > df.aux$TotalCharges,] #uncomment to see full table
 
 #Look at phone service
 table(df.aux$PhoneService)
