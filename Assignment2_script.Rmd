@@ -1,6 +1,6 @@
 ---
 title: "Statistical Inference and Modelling: Assignment 2"
-author: "Gabriel Vayá, Arnau Torru, Darryl Abraham"
+author: "Gabriel Vayá, Arnau Torruella, Darryl Abraham"
 date: "2023-12-13"
 output: 
   pdf_document: 
