@@ -15,6 +15,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(warn=-1)
 ```
 
 ```{r}
@@ -266,7 +267,6 @@ To further our analysis on the relationship between variables we make use of a f
 num <- which(sapply(df,is.numeric))
 
 # Correlations
-vis_dat(df[,num], sort_type = FALSE)
 vis_cor(df[,num])
 
 # Mixed Associations (using Chisquared pvalue and CramersV)
