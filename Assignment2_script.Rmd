@@ -59,13 +59,13 @@ levels(df$SeniorCitizen) <- c("No","Yes")
 ```
 
 
-#DataPreparation
+#DataPreparation  
 
-#Missing Values
+#Missing Values  
 For the missing data, we see that there are only 11 missing values. If we look even closer, we can see they are all in the same variable, TotalCharges. Analysing even further, we can see those missing values are corresponding to those clients with 0 month of tenure. Hence are imputing them with 0. 
 ```{r}
 vis_miss(df)
-df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
+#df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
 
 mcar_test(df) #p-value is 0 -> not random
 df$tenure[is.na(df$TotalCharges)] #TotalCharges are NA when tenure is 0
@@ -99,37 +99,37 @@ table(df.aux$StreamingMovies)
 ```
 
 
-#EDA (+ Univariate Outliers)
+#EDA (+ Univariate Outliers)  
 
-#gender
+#gender  
 This is the gender of the customer, which as we can see is balanced throughout the dataset.
 ```{r}
 na.gender <- sum(is.na(df$gender)) #No NAs
 barplot(table(df$gender),col='lightblue') #Balanced
 ```
 
-#SeniorCitizen
+#SeniorCitizen  
 As far as SeniorCitizen, there is much less SeniorCitizens as you can imagine.
 ```{r}
 na.seniorcitizen <- sum(is.na(df$SeniorCitizen)) #No NAs
 barplot(table(df$SeniorCitizen),col='lightblue') #Unbalanced
 ```
 
-#Partner
+#Partner  
 Those are customers with partner, and we see it is pretty balanced.
 ```{r}
 na.partner <- sum(is.na(df$Partner)) #No NAs
 barplot(table(df$Partner),col='lightblue') #Balanced
 ```
 
-#Dependents
+#Dependents  
 The dependent customers follow a similar distribution than the SeniorCitizen.
 ```{r}
 na.dependents <- sum(is.na(df$Dependents)) #No NAs
 barplot(table(df$Dependents),col='lightblue') #Unbalanced
 ```
 
-#tenure
+#tenure  
 This is the months that a customers have been in the company. We can see that the majority of the customer base are recent customers. We can see that, using an Anderson-Darling test the variable is not normally distributied, and has no univariate outliers.
 ```{r}
 na.tenure <- sum(is.na(df$tenure)) #No NAs
@@ -142,84 +142,84 @@ Boxplot(df$tenure,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univari
 Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
 ```
 
-#PhoneService
+#PhoneService  
 Now we can see that the majority of the clients have PhoneService in the contract.
 ```{r}
 na.phoneservice <- sum(is.na(df$PhoneService)) #No NAs
 barplot(table(df$PhoneService),col='lightblue') #Unbalanced
 ```
 
-#MultipleLines
+#MultipleLines  
 As we saw before, the majority of the clients have PhoneService, so they are underrepresented in this variable, but regarding those who have, MultipleLines is pretty balanced.
 ```{r}
 na.multiplelines <- sum(is.na(df$MultipleLines)) #No NAs
 barplot(table(df$MultipleLines),col='lightblue') #Unbalanced in "No phone service"
 ```
 
-#InternetService
+#InternetService  
 Most of the clients have fiber optic, and there are a few that don't have internet service.
 ```{r}
 na.internetservice <- sum(is.na(df$InternetService)) #No NAs
 barplot(table(df$InternetService),col='lightblue') #Unbalanced
 ```
 
-#OnlineSecurity
+#OnlineSecurity  
 Those clients without internet service are a minority as they were in the previous variable, and most of those with internet service don't have OnlineSecurity.
 ```{r}
 no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
 barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
 ```
 
-#OnlineBackup
+#OnlineBackup  
 Similar to previous variable
 ```{r}
 na.onlinebackup <- sum(is.na(df$OnlineBackup)) #No NAs
 barplot(table(df$OnlineBackup),col='lightblue') #Unbalanced
 ```
 
-#DeviceProtection
+#DeviceProtection  
 Similar to previous variable
 ```{r}
 na.deviceprotection <- sum(is.na(df$DeviceProtection)) #No NAs
 barplot(table(df$DeviceProtection),col='lightblue') #Unbalanced
 ```
 
-#TechSupport
+#TechSupport  
 Similar to previous variable
 ```{r}
 na.techsupport <- sum(is.na(df$TechSupport)) #No NAs
 barplot(table(df$TechSupport),col='lightblue') #Unbalanced in "No"
 ```
 
-#StreamingMovies
+#StreamingMovies  
 In this case, disregarding the users without internet service, the categories are balanced.
 ```{r}
 na.streamingmovies <- sum(is.na(df$StreamingMovies)) #No NAs
 barplot(table(df$StreamingMovies),col='lightblue') #Unbalanced in "No internet service"
 ```
 
-#Contract
+#Contract  
 Most of the contracts are month to month.
 ```{r}
 na.contract <- sum(is.na(df$Contract)) #No NAs
 barplot(table(df$Contract),col='lightblue') #Unbalanced in "Month-to-month"
 ```
 
-#PaperlessBilling
+#PaperlessBilling  
 This variable is pretty much balanced, with more population towards having PaperlessBilling.
 ```{r}
 na.paperlessbilling <- sum(is.na(df$PaperlessBilling)) #No NAs
 barplot(table(df$PaperlessBilling),col='lightblue') #Relatively balanced
 ```
 
-#PaymentMethod
+#PaymentMethod  
 Most of the customers use electronic check.
 ```{r}
 na.paymentmethod <- sum(is.na(df$PaymentMethod)) #No NAs
 barplot(table(df$PaymentMethod),col='lightblue') #Unbalanced in "Electronic check"
 ```
 
-#MonthlyCharges
+#MonthlyCharges  
 We can see that most of population concentrates around 20 units of MothlyCharges. Not normally distributed. No univariate outliers. 
 ```{r}
 na.monthlycharges <- sum(is.na(df$MonthlyCharges)) #No NAs
@@ -233,7 +233,7 @@ Boxplot(df$MonthlyCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild
 Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
 ```
 
-#TotalCharges
+#TotalCharges  
 Again, most of the population groups around small values. Not normally distributed. No univariate outliers.  
 ```{r}
 na.totalcharges <- sum(is.na(df$TotalCharges)) #11 NAs imputed earlier
@@ -247,7 +247,7 @@ Boxplot(df$TotalCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild u
 Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
 ```
 
-#Profiling Target Variable: Churn
+#Profiling Target Variable: Churn  
 We can see from the summary of the target variable Churn that it is highly unbalanced. 73% of all instances do not Churn. This may be a problem when building a model that we must keep in mind.
 
 Using catdes we can see that the most highly related categorical variables are Contract, OnlineSecurity, TechSupport, InternetService, PaymentMethod, ONlineBackup, DeviceProtection, StreamingMovies, StreamingTV, PaperlessBilling, Dependents, SeniorCitizen, Partner, and MultipleLines. All of these variables also have an extremely low p-value (far below the 5% significance level) which indicates a strong link to the target. For the quantitative variables, we can see that the target Churn is highly linked to all the numeric variables, tenure, TotalCharges, and MonthlyCharges.
@@ -259,8 +259,8 @@ barplot(table(df$Churn),col='lightblue') #Unbalanced
 catdes(df,21)
 ```
 
-#Correlations and Associations
-If we plot the correlations between the numeric variables, the heatmap shows that MonthlyCharges and tenure are not correlated. However, intuitively TotalCharges and MonthlyCharges are positively correlated at approximately 0.5. This makes sense as the higher your monthly charges are the higher your total charges will be. Similarly, tenure has a relatively high positive correlation with TotalCharges. Once again this makes sense because the longer you are subscribed for the higher your total overall charges will be.
+#Correlations and Associations  
+If we plot the correlations between the numeric variables, the heatmap shows that MonthlyCharges and tenure are not correlated. However, intuitively TotalCharges and MonthlyCharges are positively correlated at approximately 0.5. This makes sense as the higher your monthly charges are the higher your total charges will be. Similarly, tenure has a relatively high positive correlation with TotalCharges. Once again this makes sense because the longer you are subscribed for the higher your total overall charges will be.  
 
 To further our analysis on the relationship between variables we make use of a function that plots mixed associations using the Chisquare p-values and CramersV, for numeric and categorical variables (this function was found at https://stackoverflow.com/questions/52554336/plot-the-equivalent-of-correlation-matrix-for-factors-categorical-data-and-mi by AntoniosK on StackOverflow). Note that to interpret the graph, the color of the cells indicate the Chisquared p-value (red meaning highly related), and the label found in the cells indicated the CramersV (1 indicated a perfect association). Interestingly it seems that most variables are related according to the Chisquared test, as most cells are deep red, except for gender which according to the Chisquared independence test does not show any significant relationship with the other variables. When looking at the CramersV (labels in the cells), we can see that TotalCharges has an almost perfect association with Churn the target, and all the other variables. Aside from TotalCharges, no other variable has a near perfect association with another variables.
 ```{r}
@@ -302,7 +302,7 @@ df_res %>%
 # By AntoniosK on StackOverflow
 ```
 
-#Multivariate Outliers
+#Multivariate Outliers  
 Using the Moutlier function at a 1% significance level we find that there are 62 outliers. Checking the summary of the outliers we see that they have abnormally high tenure, and very high TotalCharges. However, when we plot the robust distance versus the mahalanobis distance we see that there is a lot of continuity in the points. We believe that all the points so closely together, springing out in three continuous spikes means that these outliers are expected, as many other observations come close to this cutoff. Thus, we decide to keep all of the multivariate outliers. This is becuase of this strong continuity in the graph and the relatedness of all the points close to the cutoff. Losing these points mean we lose valuable information as there is a clear pattern, namely the higher the tenure the higher the overall total charges, even if they are very high numbers that are shown to be outliers by the Moutlier function. We want this relationship to be captured in the model.
 ```{r}
 res.mout <- Moutlier(df[,num],quantile=0.99,plot=F)
@@ -315,10 +315,10 @@ plot(res.mout$md, res.mout$rd)
 ```
 
 
-#Modelling
+#Modelling  
 Now we enter into the modelling stage of the analysis. We first want to construct a robust numerical model, in order to add transformations in the numerical variables. Afterwards we will add the main categorical variables into this best numerical model, and finally we will look at interactions between variables to make the final model.
 
-#Model with numerical variables
+#Model with numerical variables  
 We only have 3 numerical variables, so, in the first place, we construct a model with all 3 numerical variables: tenure, MonthlyCharges and TotalCharges. We are suspicious of multicolinearity regarding TotalCharges, since the number calculated by multiplying the tenure months by MonthlyCharges gives a similar result than the TotalCharges value (with small a deviation probably coming from opening fees or discounts in the different contracts). (...)
 ```{r}
 attach(df)
@@ -335,7 +335,7 @@ anova(nm2,nm1,test="Chisq") #p-value: 0.02277 -> we reject at 95% confidence tha
 ```
 
 
-#Transformations of numerical variables
+#Transformations of numerical variables  
 Firstly, we examine marginalModelPlots to gain insights into which variables effectively fit the model. Subsequently, we observed the necessity for a transformation in the tenure variable.
 A reduction of one unit in tenure is associated with a log-odds increase of -0.054850 for Churn. Consequently, implementing a Square Root Transformation becomes imperative.
 ```{r}
@@ -348,7 +348,7 @@ summary(nm4)
 marginalModelPlots(nm4)
 ```
 
-# NM4: Residual analysis and Influential Data
+# NM4: Residual analysis and Influential Data  
 (INTERPRETATION OF RESIDUAL PLOTS)
 
 When looking at the hat values, using the influenceIndexPlot, we see that there are many no points that stand out relative to the rest. We have a similar case when looking at the influencePlot. We can confirm that there are no outstanding hat values by drawing a boxplot and a typical cutoff line at 4*p/n. This plot shows us there are no points with hat values above this cutoff and therefore no further action needs to be taken.
@@ -378,7 +378,7 @@ rownames(df) <- NULL
 ```
 
 
-#Adding main categorical effects
+#Adding main categorical effects  
 Now we attempt to add our factor variables to the model. First we are building an inicial model with the main numerical variables and all the categorical ones, which will obviously result in a too complex model to be analysed or properly interpreted. After that, we are conducting an Anova Chisq test to assess the significance of each categorical variable. 
 ```{r}
 cm1 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + gender + SeniorCitizen + Partner + Dependents + PhoneService + MultipleLines + InternetService + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + StreamingTV + StreamingMovies + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
@@ -391,8 +391,8 @@ cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLin
 summary(cm2)
 ```
 
-# CM2: Residual Analysis and Influential Data
-From the general influencePlot we can see that there are a couple possible outliers that need further investivation such as observations 3821 and 489, which seem to have abnormally high hat values. These same points stand out in the influenceIndexPlot. When we now draw a boxplot of the hat values and draw a cutoff line at the typical cutoff 4*p/n, we see that point 489 is the only one above this cutoff, with point 2819 just below. Thus, we remove observation 489.
+# CM2: Residual Analysis and Influential Data  
+From the general influencePlot we can see that there are a couple possible outliers that need further investivation such as observations 3821 and 489, which seem to have abnormally high hat values. These same points stand out in the influenceIndexPlot. When we now draw a boxplot of the hat values and draw a cutoff line at the typical cutoff 4*p/n, we see that point 489 is the only one above this cutoff, with point 2819 just below. Thus, we remove observation 489.  
 
 When we further investigate Cooks' Distance using influenceIndexPlot we see more observations stand out with observations 3972 and 5948 being fat above the rest. Now when we draw the boxplot, we again see these two points stand out with several other points. Here there is no clear cutoff as the observations splinter into groups, where one group has a large distance to the rest, and then the two observations mentioned even further than this. Thus, to not lose too much valuable information we decide to remove only the two largest outliers, thus moving the cutoff to 0.0033. When comparing the Cooks outliers summaries to the all the data it is difficult to see where they are different. They seem to generally have lower charges (monthly and total), with longer tenure but nothing noteworthy that would suggest why they seem to be so influential from the summary statistics alone.
 ```{r}
@@ -426,19 +426,19 @@ cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLin
 ```
 
 
-#Interactions
-Significant interactions (5% level):
-poly(tenure, 2):Contract
-MonthlyCharges:MultipleLines
-MonthlyCharges:InternetService
-MonthlyCharges:Contract
-SeniorCitizen:PaymentMethod
-InternetService:Contract
-InternetService:PaymentMethod
+#Interactions  
+Significant interactions (5% level):  
+poly(tenure, 2):Contract  
+MonthlyCharges:MultipleLines  
+MonthlyCharges:InternetService  
+MonthlyCharges:Contract  
+SeniorCitizen:PaymentMethod  
+InternetService:Contract  
+InternetService:PaymentMethod  
 ```{r}
 Anova(glm(Churn ~ (poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod) * (poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod), family="binomial", data = df))
 ```
-We will be adding interactions one by one to our model, and we will see if they have significance over the last model, and, if they do, we keep them in the model and move on. Note that to do that we will be using Fisher tests, with the null hypothesis being that the variance explained by both models are the same. 
+We will be adding interactions one by one to our model, and we will see if they have significance over the last model, and, if they do, we keep them in the model and move on. Note that to do that we will be using Fisher tests, with the null hypothesis being that the variance explained by both models are the same.   
 First we look into the interaction between Contract and the transformed tenure. We can see that the role it performs on the model is to ... . Then, we perform an Fisher test to see if the variances explained by the two models are the same or not. 
 ```{r}
 gm1 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
@@ -474,7 +474,7 @@ anova(gm3,gm5,test="Chisq") #p-value 0.035
 In this final case, we could reject the null hypothesis at 95% confidence, but we decide to take this interaction  out of the model.
 
 
-#Train-test validation & final interpretation
+#Train-test validation & final interpretation  
 This is the final model as it is. First of all we are going to make a residual analysis and, if there is any, take out the influential data to get the model performing at its best, before intepreting it and testing it. 
 ```{r}
 fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
@@ -482,8 +482,8 @@ summary(fm)
 Anova(fm)
 ```
 
-#Residual Analysis and Influential Data
-From the influencePlot of the final model we see that there may be a lot of observations with abnormally high hat values that must be investigated, as well as some observations with extreme Cooks' Distances. When checking the influenceIndexPlot we can see many observations that stand out above the rest, for example observation 2367 and 3663. When the boxplot is plotted with the cutoff at 4*p/n we find that 56 observations are above this cutoff. We decide to remove all of these observations.
+#Residual Analysis and Influential Data  
+From the influencePlot of the final model we see that there may be a lot of observations with abnormally high hat values that must be investigated, as well as some observations with extreme Cooks' Distances. When checking the influenceIndexPlot we can see many observations that stand out above the rest, for example observation 2367 and 3663. When the boxplot is plotted with the cutoff at 4*p/n we find that 56 observations are above this cutoff. We decide to remove all of these observations.  
 
 When analyzing the Cooks' Distance using influenceIndexPlot we see only two observations that stand out far above the rest, 3969 and 5942. When we continue by drawing the boxplot we get the same result, and thus set the cutoff at 0.01 to remove these observations. Once again the analysis of the summary statistics is not very revealing, the outliers seem to have much lower charges (monthly and total), however the comparison between other factors is not adequate as there are only two outliers.
 ```{r}
@@ -512,10 +512,10 @@ df <- df[-llcoo,]
 rownames(df) <- NULL
 ```
 
-#Interpretation
-Now that we have our influential data removed, let's move on to the interpretation of the model. Let's keep in mind that the base class for this model is Churn:No. To start with the numerical variables, MonthlyCharges parameter is negative, which means that, as the amount charged by the month increases, it decreases the probability in the logodds scale that a customer will leave by 1.514e-03 units, which is not very much so we could consider it neutral. In the case of tenure, we see that as a client stays more months in the company, the probability of it to leave is 6.892e+0 units less in the logodds scale. This, a priori, speaks well of the company, since it is clear that clients tend to leave less as they experiment its services over time. However, the transformation of tenure^2 has the opposite effect, meaning that with clients that have been a lot of months in the company are more probable to leave. 
+#Interpretation  
+Now that we have our influential data removed, let's move on to the interpretation of the model. Let's keep in mind that the base class for this model is Churn:No. To start with the numerical variables, MonthlyCharges parameter is negative, which means that, as the amount charged by the month increases, it decreases the probability in the logodds scale that a customer will leave by 1.514e-03 units, which is not very much so we could consider it neutral. In the case of tenure, we see that as a client stays more months in the company, the probability of it to leave is 6.892e+0 units less in the logodds scale. This, a priori, speaks well of the company, since it is clear that clients tend to leave less as they experiment its services over time. However, the transformation of tenure^2 has the opposite effect, meaning that with clients that have been a lot of months in the company are more probable to leave.  
 
-Now for the categorical variables. Looking at contract we can see that, over the base class which is month to month, customers with contracts of one year are a little less probable to leave, and even less for contracts of two years, that are 3.798e+00 units less probable to leave in the logodds scale. In the case of InternetService, No internet service and Fiber are less probable to leave than DSL. Then, we see that SeniorCitizens are more probable to leave, which maybe can be explained because they are more probable to die. Futhermore, those clients with No phone service or multiple lines are more likely to leave than those with only one phone line. The paperless bill also plays a part, since those using a paperless (online) bill are 3.838e-01 units more probable to leave in the logodds scale than those with paper bill. That can be maybe attributed to the fact that many paper bill users don't even see the bill, since paper mail is given less attention these days. In terms of payment method, MailedCheck makes it less likely for the clients to leave than Bank transfer (the base class), which has to do with what was mentioned earlier in the Paperless bill. The same phenomena is observed with CreditCard payment although it is not as pronounced. The opposite is observed with Wlectronic check, since users of this payment method are more likely to leave the company. 
+Now for the categorical variables. Looking at contract we can see that, over the base class which is month to month, customers with contracts of one year are a little less probable to leave, and even less for contracts of two years, that are 3.798e+00 units less probable to leave in the logodds scale. In the case of InternetService, No internet service and Fiber are less probable to leave than DSL. Then, we see that SeniorCitizens are more probable to leave, which maybe can be explained because they are more probable to die. Futhermore, those clients with No phone service or multiple lines are more likely to leave than those with only one phone line. The paperless bill also plays a part, since those using a paperless (online) bill are 3.838e-01 units more probable to leave in the logodds scale than those with paper bill. That can be maybe attributed to the fact that many paper bill users don't even see the bill, since paper mail is given less attention these days. In terms of payment method, MailedCheck makes it less likely for the clients to leave than Bank transfer (the base class), which has to do with what was mentioned earlier in the Paperless bill. The same phenomena is observed with CreditCard payment although it is not as pronounced. The opposite is observed with Wlectronic check, since users of this payment method are more likely to leave the company.  
 
 Finally, let's look at the interactions. To start with, we have the interaction between the transformed tenure and Contracts. We can see that, regarding one year contracts, the probability of a customer to leave increases 2.276e+01 units in the logodds scale as tenure months increase compared to those customers with month to month contracts; and the probability of a customer to leave decreases 2.297e+01 units in the logodds scale as tenure^2 months increase. Similar with two-year contracts but not as pronounced. This means that, customers with one year or two year contracts are more likely to leave than those with month to month contracts over the months. However, the opposite happens with tenure^2, which means that if you look over large periods of time moving faster, customers with closed contracts are less likely to leave than those with month to month contracts. To end with, let's look at the interaction between MonthlyCharges and InternetService. We can see that those customers with Fiber optic are more likely to leave as their monthly charges go up than those with DSL, and the opposite with those with no internet service. However, the coeficients are relatively small, so no further conclusions must be dragged from this. 
 ```{r}
@@ -523,8 +523,8 @@ fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + Sen
 summary(fm)
 ```
 
-#Test-train
-Initially, the dataset was partitioned into two subsets, namely the training set, comprising 80% of the data, and the test set, consisting of 20%. Subsequently, the model was trained using the training data to predict churn. The next step involved predicting dropout in the test dataset. The model achieved an accuracy of 80%.
+#Test-train  
+Initially, the dataset was partitioned into two subsets, namely the training set, comprising 80% of the data, and the test set, consisting of 20%. Subsequently, the model was trained using the training data to predict churn. The next step involved predicting dropout in the test dataset. The model achieved an accuracy of 80%.  
 
 Finally, an additional assessment was conducted using the ROC curve. The Area Under the Curve (AUC) on the Receiver Operating Characteristic (ROC) curve serves as a metric for gauging the classifier's efficacy in distinguishing between positive and negative classes. An AUC value of 0.87 suggests very robust performance. Typically values above 0.90 are not achievable in practice and therefore our model shows near excellent behaviour in this regard.
 ```{r}
