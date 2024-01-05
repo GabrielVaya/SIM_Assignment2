@@ -345,7 +345,7 @@ marginalModelPlots(nm4)
 ```
 
 #  NM4: Residual analysis and Influential Data  
-(INTERPRETATION OF RESIDUAL PLOTS)
+From the residual plots we can see that they are not fully on the dotted horizontal line for the linear part of poly(tenure, 2) and MonthlyCharges. Similarly, for the linear predictor, the line is not horizontal nad follows a strange tick pattern. For the first two predictors, although the lines are not on the dotted line they are still relatively horizontal indicating some independence of the residuals from the value of the predictor. The same cannot be said for the Linear Predictor.
 
 When looking at the hat values, using the influenceIndexPlot, we see that there are many no points that stand out relative to the rest. We have a similar case when looking at the influencePlot. We can confirm that there are no outstanding hat values by drawing a boxplot and a typical cutoff line at 4*p/n. This plot shows us there are no points with hat values above this cutoff and therefore no further action needs to be taken.
 
@@ -386,7 +386,7 @@ cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLin
 ```
 
 #  CM2: Residual Analysis and Influential Data  
-(INTERPRETATION OF RESIDUAL PLOTS)
+For the model cm2 we can see that the linear part of poly(tenure, 2) is fairly horizontal. This is the same for MonthlyCharges. Thus, there is independence of the residuals from the predictors themselves. For SeniorCitizen we can see that the box plots are centered in the dotted line, however label 'Yes' has a larger spread/variance. This indicates that there may be some dependence on the value of the predictor on the residuals. For MultipleLines the labels 'Yes' and 'No' have nearly identical boxplots while 'No phone service' has a much smaller variance. This indicates that for this modality there is some dependence in the residuals. For InternetService it is the same, where 'Fiber optice' has a larger spread and thus may indicate some dependence. Similarly, for Contract 'Month-to-month' has a larger spread. PaperlessBilling the boxplots are different in 'Yes' and 'No' indicated dependence. For PaymentMethod 'Electronic Check' is the outlier of all modalities where the variance is much higher and thus indicates dependence. As for the Linear Predictor, the line again follows a tick pattern. We believe that for the factors, an influencing factor in these results are the disproportionate and unbalanced values in these sets, like for PaymentMethod, there are much more 'Electronic Check' values than any other which may have some influence on these results.
 
 From the general influencePlot we can see that there are a couple possible outliers that need further investivation such as observations 3821 and 489, which seem to have abnormally high hat values. These same points stand out in the influenceIndexPlot. When we now draw a boxplot of the hat values and draw a cutoff line at the typical cutoff 4*p/n, we see that point 489 is the only one above this cutoff, with point 2819 just below. Thus, we remove observation 489.  
 
@@ -471,7 +471,7 @@ fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + Sen
 ```
 
 #  FM: Residual Analysis and Influential Data  
-(INTERPRETATION OF RESIDUAL PLOTS)
+In terms of the residuals for the Linear part of poly(tenure, 2), they look independent following a horizontal line across. The same can be said for MonthlyCharges. For Contract, 'Month-to-month' stands out with higher spread indicating some dependence in the residuals to the value of the predictor. 'Fiber optic' does the same for InternetService indicating dependence. SeniorCitizen the boxplots for modality 'Yes' has a higher variance, indicating dependence. The modalities for MultipleLines are more or less similar, possibly indicating some independence. PaperlessBilling may be dependent as the modality 'Yes' has a higher variance. Lastly, as previously analysed PaymentMethod may be dependent in the modality 'Electronic Check' as this value shows a larger boxplot. The Liner Predictor shows again a tick pattern, however this time it is much less severe. Once again, we would like to reiterate the point that the imbalance of values in dataset may be the cause for some of these conclusions, and this should be further investigated in the future.
 
 From the influencePlot of the final model we see that there may be a lot of observations with abnormally high hat values that must be investigated, as well as some observations with extreme Cooks' Distances. When checking the influenceIndexPlot we can see many observations that stand out above the rest, for example observation 2367 and 3663. When the boxplot is plotted with the cutoff at 4*p/n we find that 56 observations are above this cutoff. We decide to remove all of these observations.  
 
