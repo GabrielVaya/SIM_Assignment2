@@ -17,7 +17,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, fig.width = 6, fig.height = 3)
 options(warn=-1)
 ```
-
+\newpage
 ```{r}
 # Clear plots
 if(!is.null(dev.list())) dev.off()
@@ -25,25 +25,26 @@ if(!is.null(dev.list())) dev.off()
 # Clean workspace
 rm(list=ls())
 
-library(car)
-library(MASS)
-library(missMDA)
-library(visdat)
-library(FactoMineR)
-library(chemometrics)
-library(corrplot)
-library(naniar)
-library(nortest)
-library(visdat)
-library(tidyverse)
-library(lsr)
-library(effects)
+suppressMessages(library(car))
+suppressMessages(library(MASS))
+suppressMessages(library(missMDA))
+suppressMessages(library(visdat))
+suppressMessages(library(FactoMineR))
+suppressMessages(library(chemometrics))
+suppressMessages(library(corrplot))
+suppressMessages(library(naniar))
+suppressMessages(library(nortest))
+suppressMessages(library(visdat))
+suppressMessages(library(tidyverse))
+suppressMessages(library(lsr))
+suppressMessages(library(effects))
+suppressMessages(library(pROC))
 ```
 
 First thing will be to load the data into R, and redeclaring the variables to properly comply with the needs of the analysis. Notice we relable the levels of the variable SeniorCitizen from (0,1) to (No, Yes) for practical reasons. 
 ```{r}
-#setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
-setwd("/Users/gabrielvayaabad/Documents/GitHub/SIM_Assignment2")
+setwd("C:\\Users\\darry\\Documents\\MDS\\Statistical_Inference_And_Modelling\\SIM_Assignment2")
+#setwd("/Users/gabrielvayaabad/Documents/GitHub/SIM_Assignment2")
 #setwd("C:/Users/Admin/Desktop/MÀSTER DATA SCIENCE/SIM/Assigment 2")
 #setwd("D:/MDS/ADSDB/SIM_Assignment2")
 
@@ -58,13 +59,14 @@ df$customerID <- as.character(df$customerID)
 levels(df$SeniorCitizen) <- c("No","Yes")
 ```
 
-
-# DataPreparation  
+# Data Preparation 
+Please note, only variables that are found in the final model have their exploratory analysis in the report. For all other variables please refer to the appendix.
 
 #  Missing Values  
 For the missing data, we see that there are only 11 missing values. If we look even closer, we can see they are all in the same variable, TotalCharges. Analysing even further, we can see those missing values are corresponding to those clients with 0 month of tenure. Hence are imputing them with 0. 
 ```{r}
-vis_miss(df)
+vis_miss(df) +
+  theme(axis.text.x =  element_text(angle = 80))
 #df[is.na(df$TotalCharges),] #NAs only found in TotalCharges variable
 
 mcar_test(df) #p-value is 0 -> not random
@@ -98,35 +100,13 @@ table(df.aux$StreamingTV)
 table(df.aux$StreamingMovies)
 ```
 
-
 # EDA (+ Univariate Outliers)  
-
-#Gender  
-This is the gender of the customer, which as we can see is balanced throughout the dataset.
-```{r}
-na.gender <- sum(is.na(df$gender)) #No NAs
-barplot(table(df$gender),col='lightblue') #Balanced
-```
 
 #SeniorCitizen  
 As far as SeniorCitizen, there is much less SeniorCitizens as you can imagine.
 ```{r}
 na.seniorcitizen <- sum(is.na(df$SeniorCitizen)) #No NAs
 barplot(table(df$SeniorCitizen),col='lightblue') #Unbalanced
-```
-
-#Partner  
-Those are customers with partner, and we see it is pretty balanced.
-```{r}
-na.partner <- sum(is.na(df$Partner)) #No NAs
-barplot(table(df$Partner),col='lightblue') #Balanced
-```
-
-#Dependents  
-The dependent customers follow a similar distribution than the SeniorCitizen.
-```{r}
-na.dependents <- sum(is.na(df$Dependents)) #No NAs
-barplot(table(df$Dependents),col='lightblue') #Unbalanced
 ```
 
 #Tenure  
@@ -142,13 +122,6 @@ Boxplot(df$tenure,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univari
 Boxplot(df$tenure,range=3,id=list(n=Inf,labels=rownames(df))) #No extreme univariate outliers
 ```
 
-#PhoneService  
-Now we can see that the majority of the clients have PhoneService in the contract.
-```{r}
-na.phoneservice <- sum(is.na(df$PhoneService)) #No NAs
-barplot(table(df$PhoneService),col='lightblue') #Unbalanced
-```
-
 #MultipleLines  
 As we saw before, the majority of the clients have PhoneService, so they are underrepresented in this variable, but regarding those who have, MultipleLines is pretty balanced.
 ```{r}
@@ -161,41 +134,6 @@ Most of the clients have fiber optic, and there are a few that don't have intern
 ```{r}
 na.internetservice <- sum(is.na(df$InternetService)) #No NAs
 barplot(table(df$InternetService),col='lightblue') #Unbalanced
-```
-
-#OnlineSecurity  
-Those clients without internet service are a minority as they were in the previous variable, and most of those with internet service don't have OnlineSecurity.
-```{r}
-no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
-barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
-```
-
-#OnlineBackup  
-Similar to previous variable
-```{r}
-na.onlinebackup <- sum(is.na(df$OnlineBackup)) #No NAs
-barplot(table(df$OnlineBackup),col='lightblue') #Unbalanced
-```
-
-#DeviceProtection  
-Similar to previous variable
-```{r}
-na.deviceprotection <- sum(is.na(df$DeviceProtection)) #No NAs
-barplot(table(df$DeviceProtection),col='lightblue') #Unbalanced
-```
-
-#TechSupport  
-Similar to previous variable
-```{r}
-na.techsupport <- sum(is.na(df$TechSupport)) #No NAs
-barplot(table(df$TechSupport),col='lightblue') #Unbalanced in "No"
-```
-
-#StreamingMovies  
-In this case, disregarding the users without internet service, the categories are balanced.
-```{r}
-na.streamingmovies <- sum(is.na(df$StreamingMovies)) #No NAs
-barplot(table(df$StreamingMovies),col='lightblue') #Unbalanced in "No internet service"
 ```
 
 #Contract  
@@ -233,30 +171,18 @@ Boxplot(df$MonthlyCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild
 Boxplot(df$MonthlyCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
 ```
 
-#TotalCharges  
-Again, most of the population groups around small values. Not normally distributed. No univariate outliers.  
-```{r}
-na.totalcharges <- sum(is.na(df$TotalCharges)) #11 NAs imputed earlier
-hist(df$TotalCharges,freq=F,15)
-mm <- mean(df$TotalCharges,na.rm=T)
-ss <- sd(df$TotalCharges,na.rm=T)
-curve(dnorm(x,mm,ss),col="red",add=T)
-#shapiro.test(df$TotalCharges) #Error: too many samples for shapiro test
-ad.test(df$TotalCharges) #Anderson-Darling test: Not normally distributed
-Boxplot(df$TotalCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univariate outliers
-Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
-```
-
 # Profiling Target Variable: Churn  
 We can see from the summary of the target variable Churn that it is highly unbalanced. 73% of all instances do not Churn. This may be a problem when building a model that we must keep in mind.
 
 Using catdes we can see that the most highly related categorical variables are Contract, OnlineSecurity, TechSupport, InternetService, PaymentMethod, ONlineBackup, DeviceProtection, StreamingMovies, StreamingTV, PaperlessBilling, Dependents, SeniorCitizen, Partner, and MultipleLines. All of these variables also have an extremely low p-value (far below the 5% significance level) which indicates a strong link to the target. For the quantitative variables, we can see that the target Churn is highly linked to all the numeric variables, tenure, TotalCharges, and MonthlyCharges.
+
+Please note the catdes output can be found in the appendix.
 ```{r}
 na.churn <- sum(is.na(df$Churn)) #No NAs
 summary(df$Churn)
 ptt<-prop.table(table(df$Churn));ptt
 barplot(table(df$Churn),col='lightblue') #Unbalanced
-catdes(df,21)
+#catdes(df,21) --> output moved to appendix due to length (4 pages)
 ```
 
 # Correlations and Associations  
@@ -313,7 +239,6 @@ plot(res.mout$md, res.mout$rd)
 
 #df <- df[-m.out,] #remove multivariate outliers
 ```
-
 
 # Modelling  
 Now we enter into the modelling stage of the analysis. We first want to construct a robust numerical model, in order to add transformations in the numerical variables. Afterwards we will add the main categorical variables into this best numerical model, and finally we will look at interactions between variables to make the final model.
@@ -373,7 +298,6 @@ df <- df[-llcoo,]
 rownames(df) <- NULL
 ```
 
-
 #  Adding main categorical effects  
 Now we attempt to add our factor variables to the model. First we are building an inicial model with the main numerical variables and all the categorical ones, which will obviously result in a too complex model to be analysed or properly interpreted. After that, we are conducting an Anova Chisq test to assess the significance of each categorical variable. 
 ```{r}
@@ -421,7 +345,6 @@ rownames(df) <- NULL
 cm2 <- glm(Churn ~ poly(tenure,2) + MonthlyCharges + SeniorCitizen + MultipleLines + InternetService + Contract + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 ```
 
-
 #  Interactions  
 Significant interactions (5% level):  
 poly(tenure, 2):Contract  
@@ -462,7 +385,6 @@ gm5 <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + Se
 anova(gm3,gm5,test="Chisq") #p-value 0.035   
 ```
 In this final case, we could reject the null hypothesis at 95% confidence, but we decide to take this interaction  out of the model. The best model is gm3. 
-
 
 # Train-test validation & Final interpretation  
 This is the final model as it is. First of all we are going to make a residual analysis and, if there is any, take out the influential data to get the model performing at its best, before intepreting it and testing it. 
@@ -519,10 +441,6 @@ Initially, the dataset was partitioned into two subsets, namely the training set
 
 Finally, an additional assessment was conducted using the ROC curve. The Area Under the Curve (AUC) on the Receiver Operating Characteristic (ROC) curve serves as a metric for gauging the classifier's efficacy in distinguishing between positive and negative classes. An AUC value of 0.87 suggests very robust performance. Typically values above 0.90 are not achievable in practice and therefore our model shows near excellent behaviour in this regard.
 ```{r}
-# Install and load the pROC package
-#install.packages("pROC")
-library(pROC)
-
 set.seed(1234)
 llwork <- sample(1:nrow(df), round(0.8 * nrow(df), dig = 0))
 train_data <- df[llwork, ]
@@ -555,4 +473,91 @@ auc_value <- auc(roc_curve)
 legend("bottomright", legend = paste("AUC =", round(auc_value, 2)), col = "blue", lwd = 2)
 
 ```
+\newpage
+
+# Appendix
+
+#Gender  
+This is the gender of the customer, which as we can see is balanced throughout the dataset.
+```{r}
+na.gender <- sum(is.na(df$gender)) #No NAs
+barplot(table(df$gender),col='lightblue') #Balanced
+```
+
+#Partner  
+Those are customers with partner, and we see it is pretty balanced.
+```{r}
+na.partner <- sum(is.na(df$Partner)) #No NAs
+barplot(table(df$Partner),col='lightblue') #Balanced
+```
+
+#Dependents  
+The dependent customers follow a similar distribution than the SeniorCitizen.
+```{r}
+na.dependents <- sum(is.na(df$Dependents)) #No NAs
+barplot(table(df$Dependents),col='lightblue') #Unbalanced
+```
+
+#PhoneService  
+Now we can see that the majority of the clients have PhoneService in the contract.
+```{r}
+na.phoneservice <- sum(is.na(df$PhoneService)) #No NAs
+barplot(table(df$PhoneService),col='lightblue') #Unbalanced
+```
+
+#OnlineSecurity  
+Those clients without internet service are a minority as they were in the previous variable, and most of those with internet service don't have OnlineSecurity.
+```{r}
+no.onlinesecurity <- sum(is.na(df$OnlineSecurity)) #No NAs
+barplot(table(df$OnlineSecurity),col='lightblue') #Unbalanced in "No"
+```
+
+#OnlineBackup  
+Similar to previous variable
+```{r}
+na.onlinebackup <- sum(is.na(df$OnlineBackup)) #No NAs
+barplot(table(df$OnlineBackup),col='lightblue') #Unbalanced
+```
+
+#DeviceProtection  
+Similar to previous variable
+```{r}
+na.deviceprotection <- sum(is.na(df$DeviceProtection)) #No NAs
+barplot(table(df$DeviceProtection),col='lightblue') #Unbalanced
+```
+
+#TechSupport  
+Similar to previous variable
+```{r}
+na.techsupport <- sum(is.na(df$TechSupport)) #No NAs
+barplot(table(df$TechSupport),col='lightblue') #Unbalanced in "No"
+```
+
+#StreamingMovies  
+In this case, disregarding the users without internet service, the categories are balanced.
+```{r}
+na.streamingmovies <- sum(is.na(df$StreamingMovies)) #No NAs
+barplot(table(df$StreamingMovies),col='lightblue') #Unbalanced in "No internet service"
+```
+
+#TotalCharges  
+Again, most of the population groups around small values. Not normally distributed. No univariate outliers.  
+```{r}
+na.totalcharges <- sum(is.na(df$TotalCharges)) #11 NAs imputed earlier
+hist(df$TotalCharges,freq=F,15)
+mm <- mean(df$TotalCharges,na.rm=T)
+ss <- sd(df$TotalCharges,na.rm=T)
+curve(dnorm(x,mm,ss),col="red",add=T)
+#shapiro.test(df$TotalCharges) #Error: too many samples for shapiro test
+ad.test(df$TotalCharges) #Anderson-Darling test: Not normally distributed
+Boxplot(df$TotalCharges,range=1.5,id=list(n=Inf,labels=rownames(df))) #No mild univariate outliers
+Boxplot(df$TotalCharges,range=3,id=list(n=Inf,labels=rownames(df))) #No severe univariate outliers
+```
+
+#Catdes output
+```{r}
+catdes(df,21)
+```
+
+
 
