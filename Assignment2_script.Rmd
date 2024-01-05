@@ -14,7 +14,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 4)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 6, fig.height = 3)
 options(warn=-1)
 ```
 
@@ -292,7 +292,7 @@ df_res = map2_df(df_comb$X1, df_comb$X2, f)
 df_res %>%
   ggplot(aes(x,y,fill=chisq_pval))+
   geom_tile()+
-  geom_text(aes(x,y,label=cramV), size=2)+
+  geom_text(aes(x,y,label=cramV), size=1)+
   scale_fill_gradient(low="red", high="yellow")+
   theme_classic()+
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
