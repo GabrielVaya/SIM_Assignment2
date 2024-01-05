@@ -526,6 +526,7 @@ Finally, let's look at the interactions. To start with, we have the interaction 
 fm <- glm(Churn ~ poly(tenure,2)*Contract + MonthlyCharges*InternetService + SeniorCitizen + MultipleLines + InternetService + PaperlessBilling + PaymentMethod, family="binomial", data = df)
 summary(fm)
 ```
+From the summary of the model we can see that the Residual deviance is 5814.5 and the AIC is 5856.5. These are relatively high numbers, however we understand that AIC is more punishing to models with more parameters which is the case for our final model.
 
 #  Train-test  
 Initially, the dataset was partitioned into two subsets, namely the training set, comprising 80% of the data, and the test set, consisting of 20%. Subsequently, the model was trained using the training data to predict churn. The next step involved predicting dropout in the test dataset. The model achieved an accuracy of 80%.  
